@@ -116,7 +116,7 @@ public class AuthService {
                             "Tus credenciales de acceso son:\n" +
                             "Usuario: %s\n" +
                             "Contraseña: (la que elegiste al registrarte)\n\n" +
-                            "Puedes iniciar sesión en: http://192.168.0.230:5173/login\n\n" +
+                            "Puedes iniciar sesión en: https://psygst-frontend-djtu.vercel.app/login\n\n" +
                             "¡Éxitos!",
                     request.nombre(), request.username());
             try {
