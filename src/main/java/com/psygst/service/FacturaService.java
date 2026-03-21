@@ -37,8 +37,7 @@ public class FacturaService {
     private final PacienteRepository pacienteRepository;
     private final ProfesionalRepository profesionalRepository;
 
-    @Value("${factura.storage-path:./storage/facturas}")
-    private String storagePath;
+    // Almacenamiento migrado a DB
 
     @Transactional
     public FacturaResponse subirFactura(String pacienteUuid, MultipartFile file) {
@@ -56,25 +55,18 @@ public class FacturaService {
                 .orElseThrow(() -> new EntityNotFoundException("Profesional no encontrado"));
 
         try {
-            Path directory = Paths.get(storagePath);
-            if (!Files.exists(directory)) {
-                Files.createDirectories(directory);
-            }
-
             String originalName = file.getOriginalFilename();
             String extension = originalName != null && originalName.contains(".") ? originalName.substring(originalName.lastIndexOf(".")) : ".pdf";
             String newFileName = UUID.randomUUID() + extension;
-            Path filePath = directory.resolve(newFileName);
-
-            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+            String fileNameToSave = originalName != null ? originalName : newFileName;
 
             Factura factura = Factura.builder()
                     .uuid(UUID.randomUUID().toString())
                     .paciente(paciente)
                     .profesional(profesional)
                     .sistema(paciente.getSistema())
-                    .nombreArchivo(originalName != null ? originalName : newFileName)
-                    .rutaArchivo(filePath.toString())
+                    .nombreArchivo(fileNameToSave)
+                    .datosArchivo(file.getBytes())
                     .baja((byte) 0)
                     .build();
 
@@ -102,17 +94,10 @@ public class FacturaService {
         Factura factura = facturaRepository.findByUuidAndSistema_IdSistemaAndBaja(uuid, idSistema, (byte) 0)
                 .orElseThrow(() -> new EntityNotFoundException("Factura no encontrada"));
 
-        try {
-            Path filePath = Paths.get(factura.getRutaArchivo()).normalize();
-            Resource resource = new UrlResource(filePath.toUri());
-
-            if (resource.exists() || resource.isReadable()) {
-                return resource;
-            } else {
-                throw new EntityNotFoundException("No se pudo leer el archivo");
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Error al descargar archivo", e);
+        if (factura.getDatosArchivo() != null) {
+            return new org.springframework.core.io.ByteArrayResource(factura.getDatosArchivo());
+        } else {
+            throw new EntityNotFoundException("La factura no contiene datos adjuntos");
         }
     }
     

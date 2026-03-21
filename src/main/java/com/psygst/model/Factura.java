@@ -22,8 +22,8 @@ public class Factura {
     @Column(nullable = false, length = 255)
     private String nombreArchivo;
 
-    @Column(nullable = false, length = 500)
-    private String rutaArchivo;
+    @Lob
+    private byte[] datosArchivo;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idProfesional", nullable = false)
