@@ -34,6 +34,10 @@ spring:
             enable: true
     from-name: ${SMTP_FROM_NAME:PsyGst Notificaciones}
 
+
+resend:
+  api-key: ${RESEND_API_KEY:re_awYiLfJ7_2ktjpbUbcWYBtKfTTG8Ppyun}
+  
 server:
   port: 8080
   servlet:
