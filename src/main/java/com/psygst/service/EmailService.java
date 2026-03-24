@@ -66,6 +66,7 @@ public class EmailService {
     }
 }
 */
+
 package com.psygst.service;
 
 import lombok.extern.slf4j.Slf4j;
@@ -78,60 +79,50 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.Base64;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Service
 @Slf4j
 public class EmailService {
 
-    @Value("${resend.api-key:}")
-    private String resendApiKey;
+    // Ahora leemos la URL del script de Google y el token desde el properties
+    @Value("${google.script.url:}")
+    private String googleScriptUrl;
 
-    // IMPORTANTE: Hasta que valides un dominio propio en Resend, 
-    // debes usar este remitente de prueba por defecto.
-    @Value("${resend.from-email:onboarding@resend.dev}")
-    private String fromEmail;
-
-    @Value("${resend.from-name:PsyGst Notificaciones}")
-    private String fromName;
+    @Value("${google.script.token:PsyGst_Token_987654321}")
+    private String scriptToken;
 
     private final RestTemplate restTemplate = new RestTemplate();
-    private final String RESEND_API_URL = "https://api.resend.com/emails";
 
     public void enviar(String to, String subject, String body) {
-        if (resendApiKey == null || resendApiKey.isBlank()) {
+        if (googleScriptUrl == null || googleScriptUrl.isBlank()) {
             log.info("[EMAIL STUB] To: {} | Subject: {} | Body: {}", to, subject, body);
             return;
         }
 
         try {
-            // 1. Configurar las cabeceras de la petición web
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.setBearerAuth(resendApiKey);
 
-            // 2. Armar el cuerpo del JSON que exige Resend
             Map<String, Object> requestBody = new HashMap<>();
-            requestBody.put("from", fromName + " <" + fromEmail + ">");
-            requestBody.put("to", List.of(to));
+            requestBody.put("to", to);
             requestBody.put("subject", subject);
-            requestBody.put("html", body); // Usamos 'html' para aceptar formato
+            requestBody.put("body", body);
+            requestBody.put("token", scriptToken);
 
-            // 3. Enviar la petición POST
             HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
-            restTemplate.postForEntity(RESEND_API_URL, request, String.class);
+            restTemplate.postForEntity(googleScriptUrl, request, String.class);
             
-            log.info("✅ Email enviado a través de Resend a {}: {}", to, subject);
+            log.info("✅ Email enviado a través de Google Script a {}: {}", to, subject);
 
         } catch (Exception e) {
-            log.error("❌ Error enviando email con Resend a {}: {}", to, e.getMessage());
+            log.error("❌ Error enviando email con Google Script a {}: {}", to, e.getMessage());
             throw new RuntimeException("Error enviando email: " + e.getMessage(), e);
         }
     }
 
     public void enviarConAdjunto(String to, String subject, String body, byte[] pdf, String filename) {
-        if (resendApiKey == null || resendApiKey.isBlank()) {
+        if (googleScriptUrl == null || googleScriptUrl.isBlank()) {
             log.info("[EMAIL STUB] Adjunto: {} | To: {}", filename, to);
             return;
         }
@@ -139,32 +130,25 @@ public class EmailService {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.setBearerAuth(resendApiKey);
 
             Map<String, Object> requestBody = new HashMap<>();
-            requestBody.put("from", fromName + " <" + fromEmail + ">");
-            requestBody.put("to", List.of(to));
+            requestBody.put("to", to);
             requestBody.put("subject", subject);
-            requestBody.put("html", body);
+            requestBody.put("body", body);
+            requestBody.put("token", scriptToken);
 
-            // Convertir el byte[] del PDF a un String en formato Base64
+            // Convertir el byte[] del PDF a Base64 y enviarlo al script
             String base64Content = Base64.getEncoder().encodeToString(pdf);
-            
-            // Armar el objeto del adjunto
-            Map<String, String> attachment = new HashMap<>();
-            attachment.put("filename", filename);
-            attachment.put("content", base64Content);
-            
-            requestBody.put("attachments", List.of(attachment));
+            requestBody.put("attachmentBase64", base64Content);
+            requestBody.put("filename", filename);
 
-            // Enviar petición
             HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
-            restTemplate.postForEntity(RESEND_API_URL, request, String.class);
+            restTemplate.postForEntity(googleScriptUrl, request, String.class);
             
-            log.info("✅ Email con adjunto enviado a través de Resend a {}: {}", to, subject);
+            log.info("✅ Email con adjunto enviado a través de Google Script a {}: {}", to, subject);
 
         } catch (Exception e) {
-            log.error("❌ Error enviando email con adjunto por Resend: {}", e.getMessage());
+            log.error("❌ Error enviando email con adjunto por Google Script: {}", e.getMessage());
             throw new RuntimeException("Error enviando email con adjunto", e);
         }
     }
