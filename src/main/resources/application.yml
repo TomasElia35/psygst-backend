@@ -21,22 +21,14 @@ spring:
     locations: classpath:db/migration
     baseline-on-migrate: true
 
-  mail:
-    host: smtp.gmail.com
-    port: 465
-    username: ${SMTP_USERNAME:eliagimeneztomas@gmail.com}
-    password: ${SMTP_PASSWORD:abgd qkoi iaxa uxaq}
-    properties:
-      mail:
-        smtp:
-          auth: true
-          ssl:
-            enable: true
-    from-name: ${SMTP_FROM_NAME:PsyGst Notificaciones}
-
-
-resend:
-  api-key: ${RESEND_API_KEY:re_awYiLfJ7_2ktjpbUbcWYBtKfTTG8Ppyun}
+# Configuración unificada de Google
+google:
+  script:
+    url: ${GOOGLE_SCRIPT_URL:https://script.google.com/macros/s/AKfycbwOmL8DVedDO_aLUDu6zO1WMx-lrgQH0JgK6P2XKyJ49Cs-KHEH8b0TGf_D-sdqZF2J/exec}
+    token: ${GOOGLE_SCRIPT_TOKEN:PsyGst_Token_987654321}
+  credentials-path: ${GOOGLE_CREDENTIALS_PATH:}
+  calendar-id: ${GOOGLE_CALENDAR_ID:}
+  app-name: ${GOOGLE_APP_NAME:PsyGst}
   
 server:
   port: 8080
@@ -62,11 +54,6 @@ whatsapp:
 
 pdf:
   storage-path: ${PDF_STORAGE_PATH:./storage/recibos}
-
-google:
-  credentials-path: ${GOOGLE_CREDENTIALS_PATH:}
-  calendar-id: ${GOOGLE_CALENDAR_ID:}
-  app-name: ${GOOGLE_APP_NAME:PsyGst}
 
 cors:
   allowed-origins: ${CORS_ORIGINS:http://localhost:5173,http://localhost:3000,*}
