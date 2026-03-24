@@ -24,7 +24,7 @@ spring:
 # Configuración unificada de Google
 google:
   script:
-    url: ${GOOGLE_SCRIPT_URL:https://script.google.com/macros/s/AKfycbwOmL8DVedDO_aLUDu6zO1WMx-lrgQH0JgK6P2XKyJ49Cs-KHEH8b0TGf_D-sdqZF2J/exec}
+    url: ${GOOGLE_SCRIPT_URL:https://script.google.com/macros/s/AKfycbz0qCpuh_WbrlSgNZo0cTw4VlUeur95v-IaAvlUWXDfsYmpGphj9OiQrQeZOjsmPxUp/exec}
     token: ${GOOGLE_SCRIPT_TOKEN:PsyGst_Token_987654321}
   credentials-path: ${GOOGLE_CREDENTIALS_PATH:}
   calendar-id: ${GOOGLE_CALENDAR_ID:}
