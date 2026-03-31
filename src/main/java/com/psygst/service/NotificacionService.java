@@ -193,10 +193,13 @@ public class NotificacionService {
         Turno turno = n.getTurno();
         String paciente = turno.getPaciente().getNombre() + " " + turno.getPaciente().getApellido();
         String profNombreCompleto = turno.getProfesional().getApellido() + " " + turno.getProfesional().getNombre();
+        DateTimeFormatter formatoFecha = DateTimeFormatter.ofPattern("EEEE dd-MM-yyyy", new Locale("es", "ES"));
+        String fechaFormateada = turno.getFecha().format(formatoFecha)
+        
         return switch (n.getTipo()) {
             case "CONFIRMACION_TURNO" -> String.format(
                     "✅ Hola %s! Su turno fue confirmado para el %s a las %s. Modalidad: %s. ¡Nos vemos!\nProfesional: %s",
-                    turno.getPaciente().getNombre(), turno.getFecha(), turno.getHoraComienzo(), turno.getModalidad(), profNombreCompleto);
+                    turno.getPaciente().getNombre(), fechaFormateada, turno.getHoraComienzo(), turno.getModalidad(), profNombreCompleto);
             case "RECORDATORIO_24HS" -> String.format(
                     "Hola %s! Le recordamos su sesión de mañana %s a las %s. Modalidad: %s.",
                     turno.getPaciente().getNombre(), turno.getFecha(), turno.getHoraComienzo(), turno.getModalidad());
