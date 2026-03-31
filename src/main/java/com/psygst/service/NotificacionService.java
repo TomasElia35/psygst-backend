@@ -194,7 +194,7 @@ public class NotificacionService {
         String paciente = turno.getPaciente().getNombre() + " " + turno.getPaciente().getApellido();
         String profNombreCompleto = turno.getProfesional().getApellido() + " " + turno.getProfesional().getNombre();
         DateTimeFormatter formatoFecha = DateTimeFormatter.ofPattern("EEEE dd-MM-yyyy", new Locale("es", "ES"));
-        String fechaFormateada = turno.getFecha().format(formatoFecha)
+        String fechaFormateada = turno.getFecha().format(formatoFecha);
         
         return switch (n.getTipo()) {
             case "CONFIRMACION_TURNO" -> String.format(
