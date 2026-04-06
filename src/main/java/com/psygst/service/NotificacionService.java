@@ -13,10 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
-<<<<<<< HEAD
-=======
 
->>>>>>> 2791c817b8132856be509c4f6bfaf97a6d1406f2
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -33,7 +30,8 @@ public class NotificacionService {
     private final WhatsAppService whatsAppService;
 
     // Formateador de fecha: martes 28-03-2026
-    private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("EEEE dd-MM-yyyy", new Locale("es", "ES"));
+    private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("EEEE dd-MM-yyyy",
+            new Locale("es", "ES"));
 
     @Transactional
     public void programarRecordatorio(Turno turno) {
@@ -135,7 +133,8 @@ public class NotificacionService {
             } catch (Exception e) {
                 n.setIntentos(n.getIntentos() + 1);
                 n.setDetalle("Error: " + e.getMessage());
-                if (n.getIntentos() >= 3) n.setEstado("FALLIDO");
+                if (n.getIntentos() >= 3)
+                    n.setEstado("FALLIDO");
             }
             notificacionRepository.save(n);
         }
@@ -152,13 +151,8 @@ public class NotificacionService {
 
     private String buildMensaje(Notificacion n) {
         Turno turno = n.getTurno();
-<<<<<<< HEAD
-        String paciente = turno.getPaciente().getNombre();
-        String profNombreCompleto = turno.getProfesional().getApellido() + " " + turno.getProfesional().getNombre();
-=======
         String pacienteNombre = turno.getPaciente().getNombre();
         String profNombre = turno.getProfesional().getApellido() + " " + turno.getProfesional().getNombre();
->>>>>>> 2791c817b8132856be509c4f6bfaf97a6d1406f2
 
         // Formateo con día de la semana
         String fechaFormateada = turno.getFecha().format(dateFormatter);
@@ -169,13 +163,8 @@ public class NotificacionService {
         return switch (n.getTipo()) {
             case "CONFIRMACION_TURNO" -> String.format(
                     "✅ Hola %s! Su turno fue confirmado para el %s a las %s. Modalidad: %s. ¡Nos vemos!\nProfesional: %s",
-<<<<<<< HEAD
-                    paciente, fechaFormateada, horaFormateada, turno.getModalidad(), profNombreCompleto);
-
-=======
                     pacienteNombre, fechaFormateada, horaFormateada, turno.getModalidad(), profNombre);
-            
->>>>>>> 2791c817b8132856be509c4f6bfaf97a6d1406f2
+
             case "RECORDATORIO_24HS" -> String.format(
                     "Hola %s! Le recordamos su sesión de mañana %s a las %s. Modalidad: %s.",
                     pacienteNombre, fechaFormateada, horaFormateada, turno.getModalidad());
