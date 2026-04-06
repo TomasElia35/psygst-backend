@@ -11,6 +11,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -44,7 +46,8 @@ public class NotificacionService {
 
     /**
      * Bug-6 fix: Immediately sends a WhatsApp booking confirmation.
-     * This avoids the 15-minute wait by executing the send logic synchronously right away.
+     * This avoids the 15-minute wait by executing the send logic synchronously
+     * right away.
      */
     @Transactional
     public void enviarConfirmacionInmediata(Turno turno) {
@@ -63,7 +66,7 @@ public class NotificacionService {
             notificacionRepository.save(n);
             log.info("Confirmación WhatsApp procesada inmediatamente para turno {}", turno.getUuid());
         }
-        
+
         if (turno.getPaciente().getEmail() != null && !turno.getPaciente().getEmail().isBlank()) {
             Notificacion ne = crearNotificacion(turno, "CONFIRMACION_TURNO", "EMAIL", LocalDateTime.now());
             try {
@@ -189,20 +192,32 @@ public class NotificacionService {
         }
     }
 
+    // Definimos el formateador para el día y la fecha (ej: martes 06-04-2026)
+    private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("EEEE dd-MM-yyyy",
+            new Locale("es", "ES"));
+
     private String buildMensaje(Notificacion n) {
         Turno turno = n.getTurno();
-        String paciente = turno.getPaciente().getNombre() + " " + turno.getPaciente().getApellido();
+        String paciente = turno.getPaciente().getNombre();
         String profNombreCompleto = turno.getProfesional().getApellido() + " " + turno.getProfesional().getNombre();
+
+        // Formateamos la fecha y la hora
+        String fechaFormateada = turno.getFecha().format(dateFormatter);
+        String horaFormateada = turno.getHoraComienzo().toString() + "hs";
+
         return switch (n.getTipo()) {
             case "CONFIRMACION_TURNO" -> String.format(
                     "✅ Hola %s! Su turno fue confirmado para el %s a las %s. Modalidad: %s. ¡Nos vemos!\nProfesional: %s",
-                    turno.getPaciente().getNombre(), turno.getFecha(), turno.getHoraComienzo(), turno.getModalidad(), profNombreCompleto);
+                    paciente, fechaFormateada, horaFormateada, turno.getModalidad(), profNombreCompleto);
+
             case "RECORDATORIO_24HS" -> String.format(
                     "Hola %s! Le recordamos su sesión de mañana %s a las %s. Modalidad: %s.",
-                    turno.getPaciente().getNombre(), turno.getFecha(), turno.getHoraComienzo(), turno.getModalidad());
+                    paciente, fechaFormateada, horaFormateada, turno.getModalidad());
+
             case "CANCELACION" -> String.format(
                     "Hola %s! Su turno del %s a las %s ha sido cancelado. Comuníquese para reprogramar.",
-                    turno.getPaciente().getNombre(), turno.getFecha(), turno.getHoraComienzo());
+                    paciente, fechaFormateada, horaFormateada);
+
             case "DATOS_PAGO" -> buildMensajePago(turno);
             default -> "Notificación de PsyGst";
         };
@@ -210,9 +225,12 @@ public class NotificacionService {
 
     private String buildMensajePago(Turno turno) {
         Profesional prof = turno.getProfesional();
+        // También aplicamos el formato aquí para mantener coherencia
+        String fechaFormateada = turno.getFecha().format(dateFormatter);
+
         return String.format(
                 "Hola %s! Para abonar su sesión del %s, transferí $%.2f a:\nCBU: %s\nAlias: %s",
-                turno.getPaciente().getNombre(), turno.getFecha(), turno.getPrecioFinal(),
+                turno.getPaciente().getNombre(), fechaFormateada, turno.getPrecioFinal(),
                 prof.getCbu() != null ? prof.getCbu() : "(consultar)",
                 prof.getAlias() != null ? prof.getAlias() : "(consultar)");
     }
