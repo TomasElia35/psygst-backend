@@ -5,6 +5,7 @@ com\psygst\model\Profesion$ProfesionBuilder.class
 com\psygst\config\JacksonConfig.class
 com\psygst\model\ObraSocial$ObraSocialBuilder.class
 com\psygst\config\SecurityConfig.class
+com\psygst\controller\ObraSocialController.class
 com\psygst\dto\turno\CambiarEstadoRequest.class
 com\psygst\model\HistoriaClinica.class
 com\psygst\security\SecurityContextUtil.class
@@ -16,6 +17,7 @@ com\psygst\repository\SistemaRepository.class
 com\psygst\repository\MotivoRepository.class
 com\psygst\model\Motivo$MotivoBuilder.class
 com\psygst\model\LogGeneral$LogGeneralBuilder.class
+com\psygst\controller\RolController.class
 com\psygst\model\Arancel$ArancelBuilder.class
 com\psygst\model\Auth$AuthBuilder.class
 com\psygst\repository\AuthRepository.class
@@ -87,6 +89,7 @@ com\psygst\repository\ArancelRepository.class
 com\psygst\model\Auth.class
 com\psygst\model\Pago.class
 com\psygst\dto\paciente\PacienteRequest.class
+com\psygst\controller\MotivoController.class
 com\psygst\controller\NotificacionController.class
 com\psygst\model\Recibo$ReciboBuilder.class
 com\psygst\model\Rol.class
