@@ -12,6 +12,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * JWT provider — post UUID migration.
+ * Claims idAuth, idProfesional, idSistema, idRol are now String (UUID or numeric string).
+ * Existing tokens with Integer claims will fail validation and force re-login (expected behavior).
+ */
 @Component
 @Slf4j
 public class JwtProvider {
@@ -27,13 +32,13 @@ public class JwtProvider {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String generateToken(Integer idAuth, Integer idProfesional, Integer idSistema, Integer idRol,
+    public String generateToken(String idAuth, String idProfesional, String idSistema, String idRol,
             String username) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("idAuth", idAuth);
+        claims.put("idAuth",        idAuth);
         claims.put("idProfesional", idProfesional);
-        claims.put("idSistema", idSistema);
-        claims.put("idRol", idRol);
+        claims.put("idSistema",     idSistema);
+        claims.put("idRol",         idRol);
 
         return Jwts.builder()
                 .subject(username)
@@ -66,19 +71,19 @@ public class JwtProvider {
         return extractAllClaims(token).getSubject();
     }
 
-    public Integer extractIdSistema(String token) {
-        return extractAllClaims(token).get("idSistema", Integer.class);
+    public String extractIdSistema(String token) {
+        return extractAllClaims(token).get("idSistema", String.class);
     }
 
-    public Integer extractIdProfesional(String token) {
-        return extractAllClaims(token).get("idProfesional", Integer.class);
+    public String extractIdProfesional(String token) {
+        return extractAllClaims(token).get("idProfesional", String.class);
     }
 
-    public Integer extractIdRol(String token) {
-        return extractAllClaims(token).get("idRol", Integer.class);
+    public String extractIdRol(String token) {
+        return extractAllClaims(token).get("idRol", String.class);
     }
 
-    public Integer extractIdAuth(String token) {
-        return extractAllClaims(token).get("idAuth", Integer.class);
+    public String extractIdAuth(String token) {
+        return extractAllClaims(token).get("idAuth", String.class);
     }
 }

@@ -7,6 +7,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * Utility class to access the current authenticated user's tenant context.
  * RN-S01: services MUST always call these methods — never trust request body
  * for tenant data.
+ * 
+ * Post UUID migration: all IDs return String (UUID format).
  */
 public class SecurityContextUtil {
 
@@ -18,19 +20,19 @@ public class SecurityContextUtil {
         return (PsygstUserDetails) auth.getPrincipal();
     }
 
-    public static Integer getCurrentIdSistema() {
+    public static String getCurrentIdSistema() {
         return getCurrentUser().getIdSistema();
     }
 
-    public static Integer getCurrentIdProfesional() {
+    public static String getCurrentIdProfesional() {
         return getCurrentUser().getIdProfesional();
     }
 
-    public static Integer getCurrentIdAuth() {
+    public static String getCurrentIdAuth() {
         return getCurrentUser().getIdAuth();
     }
 
     public static boolean isAdmin() {
-        return getCurrentUser().getIdRol() == 1;
+        return getCurrentUser().isAdmin();
     }
 }

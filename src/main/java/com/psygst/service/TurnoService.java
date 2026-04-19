@@ -13,7 +13,6 @@ import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,21 +29,21 @@ public class TurnoService {
 
     @Transactional(readOnly = true)
     public List<TurnoResponse> obtenerSemana(LocalDate fechaInicio) {
-        Integer idProfesional = SecurityContextUtil.getCurrentIdProfesional();
+        String idProfesional = SecurityContextUtil.getCurrentIdProfesional();
         LocalDate fechaFin = fechaInicio.plusDays(6);
         return turnoRepository.findByProfesionalAndWeek(idProfesional, fechaInicio, fechaFin)
                 .stream().map(this::toResponse).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public TurnoResponse obtener(String uuid) {
-        return toResponse(findByUuid(uuid));
+    public TurnoResponse obtener(String id) {
+        return toResponse(findById(id));
     }
 
     @Transactional
     public TurnoResponse crear(TurnoRequest request) {
-        Integer idSistema = SecurityContextUtil.getCurrentIdSistema();
-        Integer idProfesional = SecurityContextUtil.getCurrentIdProfesional();
+        String idSistema     = SecurityContextUtil.getCurrentIdSistema();
+        String idProfesional = SecurityContextUtil.getCurrentIdProfesional();
 
         // RN-T02: HoraFin > HoraComienzo
         if (!request.horaFin().isAfter(request.horaComienzo())) {
@@ -56,14 +55,14 @@ public class TurnoService {
             throw new BadRequestException("No se pueden crear turnos con fecha pasada");
         }
 
-        // RN-T01: overlap check
+        // RN-T01: overlap check (no excludeId = null for new turno)
         boolean overlap = turnoRepository.existsOverlap(
                 idProfesional, request.fecha(), request.horaComienzo(), request.horaFin(), null);
         if (overlap) {
             throw new ConflictException("Conflicto de horario: ya existe un turno activo en ese rango horario");
         }
 
-        Paciente paciente = pacienteRepository.findByUuidAndSistema_IdSistemaAndBaja(
+        Paciente paciente = pacienteRepository.findByIdPacienteAndSistema_IdSistemaAndBaja(
                 request.pacienteUuid(), idSistema, (byte) 0)
                 .orElseThrow(() -> new EntityNotFoundException("Paciente no encontrado"));
 
@@ -77,7 +76,6 @@ public class TurnoService {
 
         // RN-T06: freeze price at creation time
         Turno turno = Turno.builder()
-                .uuid(UUID.randomUUID().toString())
                 .paciente(paciente)
                 .profesional(profesional)
                 .sistema(sistema)
@@ -91,6 +89,7 @@ public class TurnoService {
                 .observaciones(request.observaciones())
                 .baja((byte) 0)
                 .build();
+        // idTurno generated in @PrePersist
 
         turno = turnoRepository.save(turno);
 
@@ -107,8 +106,8 @@ public class TurnoService {
     }
 
     @Transactional
-    public TurnoResponse cambiarEstado(String uuid, String nuevoEstado) {
-        Turno turno = findByUuid(uuid);
+    public TurnoResponse cambiarEstado(String id, String nuevoEstado) {
+        Turno turno = findById(id);
 
         // RN-T04: REALIZADO is terminal
         if ("REALIZADO".equals(turno.getEstado())) {
@@ -125,12 +124,12 @@ public class TurnoService {
         // RN-N03: on cancel, notify patient and void pending reminders
         if ("CANCELADO".equals(nuevoEstado)) {
             notificacionService.procesarCancelacion(turno);
-            
+
             // RN-Payment 48h: if cancelled more than 48hs before, annul payment
             LocalDateTime turnoInicio = turno.getFecha().atTime(turno.getHoraComienzo());
             long hoursDiff = java.time.Duration.between(LocalDateTime.now(), turnoInicio).toHours();
             if (hoursDiff >= 48) {
-                pagoService.anularPagoDeTurnoPorUuid(turno.getUuid());
+                pagoService.anularPagoDeTurnoPorId(turno.getIdTurno());
             }
         }
 
@@ -138,10 +137,9 @@ public class TurnoService {
     }
 
     @Transactional
-    public TurnoResponse actualizar(String uuid, TurnoRequest request) {
-        Turno turno = findByUuid(uuid);
-        Integer idProfesional = SecurityContextUtil.getCurrentIdProfesional();
-        Integer idSistema = SecurityContextUtil.getCurrentIdSistema();
+    public TurnoResponse actualizar(String id, TurnoRequest request) {
+        Turno turno = findById(id);
+        String idProfesional = SecurityContextUtil.getCurrentIdProfesional();
 
         if ("REALIZADO".equals(turno.getEstado())) {
             throw new BadRequestException("No se puede modificar un turno realizado");
@@ -168,22 +166,22 @@ public class TurnoService {
     }
 
     @Transactional
-    public void eliminar(String uuid) {
-        Turno turno = findByUuid(uuid);
+    public void eliminar(String id) {
+        Turno turno = findById(id);
         turno.setBaja((byte) 1);
         turnoRepository.save(turno);
     }
 
-    private Turno findByUuid(String uuid) {
-        Integer idSistema = SecurityContextUtil.getCurrentIdSistema();
-        return turnoRepository.findByUuidAndSistema_IdSistemaAndBaja(uuid, idSistema, (byte) 0)
+    private Turno findById(String id) {
+        String idSistema = SecurityContextUtil.getCurrentIdSistema();
+        return turnoRepository.findByIdTurnoAndSistema_IdSistemaAndBaja(id, idSistema, (byte) 0)
                 .orElseThrow(() -> new EntityNotFoundException("Turno no encontrado"));
     }
 
     public TurnoResponse toResponse(Turno t) {
         return new TurnoResponse(
-                t.getUuid(),
-                t.getPaciente().getUuid(),
+                t.getIdTurno(),                    // UUID PK
+                t.getPaciente().getIdPaciente(),   // UUID PK
                 t.getPaciente().getNombre() + " " + t.getPaciente().getApellido(),
                 t.getFecha(),
                 t.getHoraComienzo(),

@@ -11,17 +11,17 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface PacienteRepository extends JpaRepository<Paciente, Integer> {
+public interface PacienteRepository extends JpaRepository<Paciente, String> {
 
     /** RN-P01: DNI unique per tenant among active patients */
-    boolean existsByDniAndSistema_IdSistemaAndBaja(String dni, Integer idSistema, Byte baja);
+    boolean existsByDniAndSistema_IdSistemaAndBaja(String dni, String idSistema, Byte baja);
 
-    Optional<Paciente> findByUuidAndSistema_IdSistemaAndBaja(String uuid, Integer idSistema, Byte baja);
+    Optional<Paciente> findByIdPacienteAndSistema_IdSistemaAndBaja(String idPaciente, String idSistema, Byte baja);
 
     Page<Paciente> findByProfesional_IdProfesionalAndSistema_IdSistemaAndBaja(
-            Integer idProfesional, Integer idSistema, Byte baja, Pageable pageable);
+            String idProfesional, String idSistema, Byte baja, Pageable pageable);
 
     @Query("SELECT p FROM Paciente p WHERE p.sistema.idSistema = :idSistema AND p.baja = 0 " +
             "AND (LOWER(p.nombre) LIKE LOWER(CONCAT('%', :q, '%')) OR LOWER(p.apellido) LIKE LOWER(CONCAT('%', :q, '%')) OR p.dni LIKE CONCAT('%', :q, '%'))")
-    Page<Paciente> search(@Param("idSistema") Integer idSistema, @Param("q") String query, Pageable pageable);
+    Page<Paciente> search(@Param("idSistema") String idSistema, @Param("q") String query, Pageable pageable);
 }

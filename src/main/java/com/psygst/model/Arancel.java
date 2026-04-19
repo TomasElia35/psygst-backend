@@ -4,21 +4,23 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "T_Arancel")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class Arancel {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer idArancel;
+    @Id
+    @Column(name = "IdArancel", length = 36)
+    private String idArancel;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idProfesional")
+    @JoinColumn(name = "IdProfesional")
     private Profesional profesional;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idObraSocial")
+    @JoinColumn(name = "IdObraSocial")
     private ObraSocial obraSocial;
 
     @Column(nullable = false, length = 20)
@@ -28,7 +30,7 @@ public class Arancel {
     private BigDecimal precio;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idSistema")
+    @JoinColumn(name = "IdSistema")
     private Sistema sistema;
 
     @Column(nullable = false)
@@ -39,6 +41,7 @@ public class Arancel {
 
     @PrePersist
     protected void onCreate() {
+        if (idArancel == null) idArancel = UUID.randomUUID().toString();
         fechaCreacion = LocalDateTime.now();
         fechaModificacion = LocalDateTime.now();
     }

@@ -2,18 +2,18 @@ package com.psygst.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "T_Paciente")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class Paciente {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer idPaciente;
-
-    @Column(nullable = false, unique = false, length = 36)
-    private String uuid;
+    @Id
+    @Column(name = "IdPaciente", length = 36)
+    private String idPaciente;
 
     @Column(nullable = false, length = 100)
     private String nombre;
@@ -31,7 +31,7 @@ public class Paciente {
     private String celular;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idObraSocial")
+    @JoinColumn(name = "IdObraSocial")
     private ObraSocial obraSocial;
 
     @Column(length = 100)
@@ -41,11 +41,11 @@ public class Paciente {
     private String observaciones;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idProfesional")
+    @JoinColumn(name = "IdProfesional")
     private Profesional profesional;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idSistema")
+    @JoinColumn(name = "IdSistema")
     private Sistema sistema;
 
     // Baja lógica
@@ -53,7 +53,7 @@ public class Paciente {
     private Byte baja = 0;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idMotivo")
+    @JoinColumn(name = "IdMotivo")
     private Motivo motivo;  // RN-P03 baja reason
 
     private LocalDateTime fechaBaja;
@@ -63,6 +63,7 @@ public class Paciente {
 
     @PrePersist
     protected void onCreate() {
+        if (idPaciente == null) idPaciente = UUID.randomUUID().toString();
         fechaCreacion = LocalDateTime.now();
         fechaModificacion = LocalDateTime.now();
     }

@@ -11,23 +11,23 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface PagoRepository extends JpaRepository<Pago, Integer> {
+public interface PagoRepository extends JpaRepository<Pago, String> {
 
-        Optional<Pago> findByTurno_IdTurnoAndBaja(Integer idTurno, Byte baja);
+        Optional<Pago> findByTurno_IdTurnoAndBaja(String idTurno, Byte baja);
 
-        Optional<Pago> findByUuidAndSistema_IdSistemaAndBaja(String uuid, Integer idSistema, Byte baja);
+        Optional<Pago> findByIdPagoAndSistema_IdSistemaAndBaja(String idPago, String idSistema, Byte baja);
 
         @Query("SELECT p FROM Pago p WHERE p.profesional.idProfesional = :idProfesional " +
                         "AND p.baja = 0 AND p.pagado = false")
-        List<Pago> findPendientesByProfesional(@Param("idProfesional") Integer idProfesional);
+        List<Pago> findPendientesByProfesional(@Param("idProfesional") String idProfesional);
 
         @Query("SELECT p FROM Pago p WHERE p.profesional.idProfesional = :idProfesional " +
                         "AND p.baja = 0 AND p.pagado = true ORDER BY p.fechaPago DESC")
-        List<Pago> findPagadosByProfesional(@Param("idProfesional") Integer idProfesional);
+        List<Pago> findPagadosByProfesional(@Param("idProfesional") String idProfesional);
 
         @Query("SELECT p FROM Pago p WHERE p.profesional.idProfesional = :idProfesional " +
                         "AND p.baja = 0 AND p.turno.fecha >= :inicio AND p.turno.fecha <= :fin")
-        List<Pago> findByProfesionalAndPeriod(@Param("idProfesional") Integer idProfesional,
+        List<Pago> findByProfesionalAndPeriod(@Param("idProfesional") String idProfesional,
                         @Param("inicio") LocalDate inicio,
                         @Param("fin") LocalDate fin);
 }

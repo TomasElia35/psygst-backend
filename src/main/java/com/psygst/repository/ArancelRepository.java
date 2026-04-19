@@ -8,10 +8,10 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ArancelRepository extends JpaRepository<Arancel, Integer> {
+public interface ArancelRepository extends JpaRepository<Arancel, String> {
 
-    List<Arancel> findByProfesional_IdProfesionalAndBaja(Integer idProfesional, Byte baja);
+    List<Arancel> findByProfesional_IdProfesionalAndBaja(String idProfesional, Byte baja);
 
     Optional<Arancel> findByProfesional_IdProfesionalAndObraSocial_IdObraSocialAndModalidadAndBaja(
-            Integer idProfesional, Integer idObraSocial, String modalidad, Byte baja);
+            String idProfesional, String idObraSocial, String modalidad, Byte baja);
 }

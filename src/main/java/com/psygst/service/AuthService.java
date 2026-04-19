@@ -41,11 +41,17 @@ public class AuthService {
         authRepository.save(auth);
 
         Profesional prof = auth.getProfesional();
+
+        // idRol stored in JWT as the rol nombre (ROLE_ADMIN / ROLE_PROFESIONAL)
+        // so JwtFilter can resolve the Spring Security role without a DB lookup
+        String rolNombre = auth.getRol().getNombre(); // e.g. "ADMIN" or "PROFESIONAL"
+        String tokenRolClaim = rolNombre.startsWith("ROLE_") ? rolNombre : "ROLE_" + rolNombre;
+
         String token = jwtProvider.generateToken(
                 auth.getIdAuth(),
                 prof != null ? prof.getIdProfesional() : null,
                 prof != null && prof.getSistema() != null ? prof.getSistema().getIdSistema() : null,
-                auth.getRol().getIdRol(),
+                tokenRolClaim,   // e.g. "ROLE_ADMIN"
                 auth.getUsername());
 
         return new LoginResponse(
@@ -74,6 +80,7 @@ public class AuthService {
             throw new BadRequestException("El nombre de usuario ya está en uso");
         }
 
+        // idRol is now a UUID String
         Rol rol = rolRepository.findById(request.idRol())
                 .orElseThrow(() -> new BadRequestException("Rol no encontrado"));
 
@@ -94,7 +101,6 @@ public class AuthService {
             sistema = sistemaRepository.save(sistema);
 
             Profesional profesional = Profesional.builder()
-                    .uuid(java.util.UUID.randomUUID().toString())
                     .nombre(request.nombre())
                     .apellido(request.apellido())
                     .email(request.email())
@@ -102,6 +108,7 @@ public class AuthService {
                     .sistema(sistema)
                     .baja((byte) 0)
                     .build();
+            // idProfesional generated in @PrePersist
             profesional = profesionalRepository.save(profesional);
             auth.setProfesional(profesional);
         }
@@ -122,7 +129,6 @@ public class AuthService {
             try {
                 emailService.enviar(request.email(), subject, body);
             } catch (Exception e) {
-                // We don't want to fail registration if email fails, just log it
                 System.err.println("Error enviando email de bienvenida: " + e.getMessage());
             }
         }

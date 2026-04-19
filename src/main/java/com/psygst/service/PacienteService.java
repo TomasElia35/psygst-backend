@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -28,8 +27,8 @@ public class PacienteService {
 
     @Transactional(readOnly = true)
     public Page<PacienteResponse> listar(int page, int size, String q) {
-        Integer idSistema = SecurityContextUtil.getCurrentIdSistema();
-        Integer idProfesional = SecurityContextUtil.getCurrentIdProfesional();
+        String idSistema      = SecurityContextUtil.getCurrentIdSistema();
+        String idProfesional  = SecurityContextUtil.getCurrentIdProfesional();
         Pageable pageable = PageRequest.of(page, size, Sort.by("apellido").ascending());
 
         Page<Paciente> pacientes;
@@ -43,14 +42,14 @@ public class PacienteService {
     }
 
     @Transactional(readOnly = true)
-    public PacienteResponse obtener(String uuid) {
-        return toResponse(findByUuid(uuid));
+    public PacienteResponse obtener(String id) {
+        return toResponse(findById(id));
     }
 
     @Transactional
     public PacienteResponse crear(PacienteRequest request) {
-        Integer idSistema = SecurityContextUtil.getCurrentIdSistema();
-        Integer idProfesional = SecurityContextUtil.getCurrentIdProfesional();
+        String idSistema     = SecurityContextUtil.getCurrentIdSistema();
+        String idProfesional = SecurityContextUtil.getCurrentIdProfesional();
 
         // RN-P01: DNI unique per tenant
         if (pacienteRepository.existsByDniAndSistema_IdSistemaAndBaja(request.dni(), idSistema, (byte) 0)) {
@@ -62,12 +61,15 @@ public class PacienteService {
                 .orElseThrow(() -> new BadRequestException("Sistema no encontrado"));
         Profesional profesional = profesionalRepository.findById(idProfesional)
                 .orElseThrow(() -> new BadRequestException("Profesional no encontrado"));
-        ObraSocial obraSocial = obraSocialRepository.findById(
-                request.idObraSocial() != null ? request.idObraSocial() : 1)
-                .orElseThrow(() -> new BadRequestException("Obra social no encontrada"));
+
+        // idObraSocial now is a UUID String; null → use default "Particular"
+        ObraSocial obraSocial = null;
+        if (request.idObraSocial() != null && !request.idObraSocial().isBlank()) {
+            obraSocial = obraSocialRepository.findById(request.idObraSocial())
+                    .orElseThrow(() -> new BadRequestException("Obra social no encontrada"));
+        }
 
         Paciente paciente = Paciente.builder()
-                .uuid(UUID.randomUUID().toString())
                 .nombre(request.nombre())
                 .apellido(request.apellido())
                 .dni(request.dni())
@@ -80,15 +82,15 @@ public class PacienteService {
                 .sistema(sistema)
                 .baja((byte) 0)
                 .build();
+        // idPaciente generated in @PrePersist
 
         return toResponse(pacienteRepository.save(paciente));
     }
 
     @Transactional
-    public PacienteResponse actualizar(String uuid, PacienteRequest request) {
-        Paciente paciente = findByUuid(uuid);
-
-        Integer idSistema = SecurityContextUtil.getCurrentIdSistema();
+    public PacienteResponse actualizar(String id, PacienteRequest request) {
+        Paciente paciente = findById(id);
+        String idSistema = SecurityContextUtil.getCurrentIdSistema();
 
         // RN-P01: if DNI changed, check uniqueness
         if (!paciente.getDni().equals(request.dni())) {
@@ -97,9 +99,11 @@ public class PacienteService {
             }
         }
 
-        ObraSocial obraSocial = obraSocialRepository.findById(
-                request.idObraSocial() != null ? request.idObraSocial() : 1)
-                .orElseThrow(() -> new BadRequestException("Obra social no encontrada"));
+        ObraSocial obraSocial = null;
+        if (request.idObraSocial() != null && !request.idObraSocial().isBlank()) {
+            obraSocial = obraSocialRepository.findById(request.idObraSocial())
+                    .orElseThrow(() -> new BadRequestException("Obra social no encontrada"));
+        }
 
         paciente.setNombre(request.nombre());
         paciente.setApellido(request.apellido());
@@ -114,11 +118,11 @@ public class PacienteService {
     }
 
     @Transactional
-    public void darDeBaja(String uuid, Integer idMotivo) {
-        Paciente paciente = findByUuid(uuid);
+    public void darDeBaja(String id, String idMotivo) {
+        Paciente paciente = findById(id);
 
         // RN-P03: motivo obligatorio
-        if (idMotivo == null) {
+        if (idMotivo == null || idMotivo.isBlank()) {
             throw new BadRequestException("El motivo de baja es obligatorio");
         }
 
@@ -138,22 +142,22 @@ public class PacienteService {
         pacienteRepository.save(paciente);
     }
 
-    private Paciente findByUuid(String uuid) {
-        Integer idSistema = SecurityContextUtil.getCurrentIdSistema();
-        return pacienteRepository.findByUuidAndSistema_IdSistemaAndBaja(uuid, idSistema, (byte) 0)
+    private Paciente findById(String id) {
+        String idSistema = SecurityContextUtil.getCurrentIdSistema();
+        return pacienteRepository.findByIdPacienteAndSistema_IdSistemaAndBaja(id, idSistema, (byte) 0)
                 .orElseThrow(() -> new EntityNotFoundException("Paciente no encontrado"));
     }
 
     private PacienteResponse toResponse(Paciente p) {
         return new PacienteResponse(
-                p.getUuid(),
+                p.getIdPaciente(),   // UUID is now the PK
                 p.getNombre(),
                 p.getApellido(),
                 p.getDni(),
                 p.getEmail(),
                 p.getCelular(),
                 p.getObraSocial() != null ? p.getObraSocial().getNombre() : "Particular",
-                p.getObraSocial() != null ? p.getObraSocial().getIdObraSocial() : 1,
+                p.getObraSocial() != null ? p.getObraSocial().getIdObraSocial() : null,
                 p.getNroAfiliado(),
                 p.getObservaciones(),
                 p.getFechaCreacion());

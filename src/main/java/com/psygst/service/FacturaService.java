@@ -12,20 +12,13 @@ import com.psygst.security.SecurityContextUtil;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,18 +30,16 @@ public class FacturaService {
     private final PacienteRepository pacienteRepository;
     private final ProfesionalRepository profesionalRepository;
 
-    // Almacenamiento migrado a DB
-
     @Transactional
-    public FacturaResponse subirFactura(String pacienteUuid, MultipartFile file) {
-        Integer idSistema = SecurityContextUtil.getCurrentIdSistema();
-        Integer idProfesional = SecurityContextUtil.getCurrentIdProfesional();
+    public FacturaResponse subirFactura(String idPaciente, MultipartFile file) {
+        String idSistema     = SecurityContextUtil.getCurrentIdSistema();
+        String idProfesional = SecurityContextUtil.getCurrentIdProfesional();
 
         if (file.isEmpty()) {
             throw new BadRequestException("El archivo está vacío");
         }
 
-        Paciente paciente = pacienteRepository.findByUuidAndSistema_IdSistemaAndBaja(pacienteUuid, idSistema, (byte) 0)
+        Paciente paciente = pacienteRepository.findByIdPacienteAndSistema_IdSistemaAndBaja(idPaciente, idSistema, (byte) 0)
                 .orElseThrow(() -> new EntityNotFoundException("Paciente no encontrado"));
 
         Profesional profesional = profesionalRepository.findById(idProfesional)
@@ -56,12 +47,9 @@ public class FacturaService {
 
         try {
             String originalName = file.getOriginalFilename();
-            String extension = originalName != null && originalName.contains(".") ? originalName.substring(originalName.lastIndexOf(".")) : ".pdf";
-            String newFileName = UUID.randomUUID() + extension;
-            String fileNameToSave = originalName != null ? originalName : newFileName;
+            String fileNameToSave = originalName != null ? originalName : "factura.pdf";
 
             Factura factura = Factura.builder()
-                    .uuid(UUID.randomUUID().toString())
                     .paciente(paciente)
                     .profesional(profesional)
                     .sistema(paciente.getSistema())
@@ -69,10 +57,12 @@ public class FacturaService {
                     .datosArchivo(file.getBytes())
                     .baja((byte) 0)
                     .build();
+            // idFactura generated in @PrePersist
 
             factura = facturaRepository.save(factura);
 
-            return new FacturaResponse(factura.getUuid(), factura.getNombreArchivo(), factura.getFechaCreacion().toString());
+            return new FacturaResponse(factura.getIdFactura(), factura.getNombreArchivo(),
+                    factura.getFechaCreacion().toString());
         } catch (IOException e) {
             log.error("Error al guardar archivo", e);
             throw new RuntimeException("No se pudo guardar la factura", e);
@@ -80,18 +70,19 @@ public class FacturaService {
     }
 
     @Transactional(readOnly = true)
-    public List<FacturaResponse> listarPorPaciente(String pacienteUuid) {
-        Integer idSistema = SecurityContextUtil.getCurrentIdSistema();
-        return facturaRepository.findByPaciente_UuidAndSistema_IdSistemaAndBaja(pacienteUuid, idSistema, (byte) 0)
+    public List<FacturaResponse> listarPorPaciente(String idPaciente) {
+        String idSistema = SecurityContextUtil.getCurrentIdSistema();
+        return facturaRepository.findByPaciente_IdPacienteAndSistema_IdSistemaAndBaja(idPaciente, idSistema, (byte) 0)
                 .stream()
-                .map(f -> new FacturaResponse(f.getUuid(), f.getNombreArchivo(), f.getFechaCreacion().toString()))
+                .map(f -> new FacturaResponse(f.getIdFactura(), f.getNombreArchivo(),
+                        f.getFechaCreacion().toString()))
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public Resource descargarFactura(String uuid) {
-        Integer idSistema = SecurityContextUtil.getCurrentIdSistema();
-        Factura factura = facturaRepository.findByUuidAndSistema_IdSistemaAndBaja(uuid, idSistema, (byte) 0)
+    public Resource descargarFactura(String idFactura) {
+        String idSistema = SecurityContextUtil.getCurrentIdSistema();
+        Factura factura = facturaRepository.findByIdFacturaAndSistema_IdSistemaAndBaja(idFactura, idSistema, (byte) 0)
                 .orElseThrow(() -> new EntityNotFoundException("Factura no encontrada"));
 
         if (factura.getDatosArchivo() != null) {
@@ -100,11 +91,11 @@ public class FacturaService {
             throw new EntityNotFoundException("La factura no contiene datos adjuntos");
         }
     }
-    
+
     @Transactional(readOnly = true)
-    public Factura obtenerPorUuid(String uuid) {
-        Integer idSistema = SecurityContextUtil.getCurrentIdSistema();
-        return facturaRepository.findByUuidAndSistema_IdSistemaAndBaja(uuid, idSistema, (byte) 0)
+    public Factura obtenerPorId(String idFactura) {
+        String idSistema = SecurityContextUtil.getCurrentIdSistema();
+        return facturaRepository.findByIdFacturaAndSistema_IdSistemaAndBaja(idFactura, idSistema, (byte) 0)
                 .orElseThrow(() -> new EntityNotFoundException("Factura no encontrada"));
     }
 }

@@ -4,20 +4,19 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "T_Pagos")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class Pago {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer idPago;
-
-    @Column(nullable = false, unique = false, length = 36)
-    private String uuid;
+    @Id
+    @Column(name = "IdPago", length = 36)
+    private String idPago;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idTurno", unique = true)
+    @JoinColumn(name = "IdTurno", unique = true)
     private Turno turno;
 
     /** RN-F01: recibo solo si pagado=1 */
@@ -37,11 +36,11 @@ public class Pago {
     private LocalDateTime fechaPago;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idProfesional")
+    @JoinColumn(name = "IdProfesional")
     private Profesional profesional;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idSistema")
+    @JoinColumn(name = "IdSistema")
     private Sistema sistema;
 
     @Column(nullable = false)
@@ -50,5 +49,8 @@ public class Pago {
     private LocalDateTime fechaCreacion;
 
     @PrePersist
-    protected void onCreate() { fechaCreacion = LocalDateTime.now(); }
+    protected void onCreate() {
+        if (idPago == null) idPago = UUID.randomUUID().toString();
+        fechaCreacion = LocalDateTime.now();
+    }
 }

@@ -3,13 +3,16 @@ package com.psygst.model;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "T_Sistema")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class Sistema {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer idSistema;
+
+    @Id
+    @Column(name = "IdSistema", length = 36)
+    private String idSistema;
 
     @Column(nullable = false, length = 100)
     private String nombre;
@@ -23,5 +26,8 @@ public class Sistema {
     private LocalDateTime fechaCreacion;
 
     @PrePersist
-    protected void onCreate() { fechaCreacion = LocalDateTime.now(); }
+    protected void onCreate() {
+        if (idSistema == null) idSistema = UUID.randomUUID().toString();
+        fechaCreacion = LocalDateTime.now();
+    }
 }

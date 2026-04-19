@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface ProfesionalRepository extends JpaRepository<Profesional, Integer> {
-    Optional<Profesional> findByUuidAndBaja(String uuid, Byte baja);
+public interface ProfesionalRepository extends JpaRepository<Profesional, String> {
+    Optional<Profesional> findByIdProfesionalAndBaja(String idProfesional, Byte baja);
 }

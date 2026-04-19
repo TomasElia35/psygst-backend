@@ -6,24 +6,23 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "T_Turno")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class Turno {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer idTurno;
-
-    @Column(nullable = false, unique = false, length = 36)
-    private String uuid;
+    @Id
+    @Column(name = "IdTurno", length = 36)
+    private String idTurno;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idPaciente")
+    @JoinColumn(name = "IdPaciente")
     private Paciente paciente;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idProfesional")
+    @JoinColumn(name = "IdProfesional")
     private Profesional profesional;
 
     @Column(nullable = false)
@@ -51,14 +50,14 @@ public class Turno {
     private BigDecimal precioFinal;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idObraSocial")
+    @JoinColumn(name = "IdObraSocial")
     private ObraSocial obraSocial;
 
     @Column(length = 500)
     private String observaciones;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idSistema")
+    @JoinColumn(name = "IdSistema")
     private Sistema sistema;
 
     @Column(nullable = false)
@@ -69,6 +68,7 @@ public class Turno {
 
     @PrePersist
     protected void onCreate() {
+        if (idTurno == null) idTurno = UUID.randomUUID().toString();
         fechaCreacion = LocalDateTime.now();
         fechaModificacion = LocalDateTime.now();
     }

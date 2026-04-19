@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface FacturaRepository extends JpaRepository<Factura, Integer> {
-    List<Factura> findByPaciente_UuidAndSistema_IdSistemaAndBaja(String pacienteUuid, Integer idSistema, Byte baja);
-    Optional<Factura> findByUuidAndSistema_IdSistemaAndBaja(String uuid, Integer idSistema, Byte baja);
+public interface FacturaRepository extends JpaRepository<Factura, String> {
+    List<Factura> findByPaciente_IdPacienteAndSistema_IdSistemaAndBaja(String idPaciente, String idSistema, Byte baja);
+    Optional<Factura> findByIdFacturaAndSistema_IdSistemaAndBaja(String idFactura, String idSistema, Byte baja);
 }

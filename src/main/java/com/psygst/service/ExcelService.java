@@ -24,7 +24,7 @@ public class ExcelService {
 
     @Transactional(readOnly = true)
     public byte[] generarReporteMensual(int year, int month) {
-        Integer idProfesional = SecurityContextUtil.getCurrentIdProfesional();
+        String idProfesional = SecurityContextUtil.getCurrentIdProfesional();
         LocalDate inicio = LocalDate.of(year, month, 1);
         LocalDate fin = inicio.withDayOfMonth(inicio.lengthOfMonth());
 

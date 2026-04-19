@@ -3,20 +3,19 @@ package com.psygst.model;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "T_Facturas")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class Factura {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer idFactura;
-
-    @Column(nullable = false, unique = true, length = 36)
-    private String uuid;
+    @Id
+    @Column(name = "IdFactura", length = 36)
+    private String idFactura;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idPaciente", nullable = false)
+    @JoinColumn(name = "IdPaciente", nullable = false)
     private Paciente paciente;
 
     @Column(nullable = false, length = 255)
@@ -26,11 +25,11 @@ public class Factura {
     private byte[] datosArchivo;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idProfesional", nullable = false)
+    @JoinColumn(name = "IdProfesional", nullable = false)
     private Profesional profesional;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idSistema", nullable = false)
+    @JoinColumn(name = "IdSistema", nullable = false)
     private Sistema sistema;
 
     @Builder.Default
@@ -40,5 +39,8 @@ public class Factura {
     private LocalDateTime fechaCreacion;
 
     @PrePersist
-    protected void onCreate() { fechaCreacion = LocalDateTime.now(); }
+    protected void onCreate() {
+        if (idFactura == null) idFactura = UUID.randomUUID().toString();
+        fechaCreacion = LocalDateTime.now();
+    }
 }

@@ -24,7 +24,6 @@ import java.io.*;
 import java.nio.file.*;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,11 +41,11 @@ public class ReciboService {
 
     /** RN-F01: only if pagado=1. RN-F02: correlative number */
     @Transactional
-    public ReciboResponse generar(String pagoUuid) {
-        Integer idSistema = SecurityContextUtil.getCurrentIdSistema();
-        Integer idProfesional = SecurityContextUtil.getCurrentIdProfesional();
+    public ReciboResponse generar(String idPago) {
+        String idSistema     = SecurityContextUtil.getCurrentIdSistema();
+        String idProfesional = SecurityContextUtil.getCurrentIdProfesional();
 
-        Pago pago = pagoRepository.findByUuidAndSistema_IdSistemaAndBaja(pagoUuid, idSistema, (byte) 0)
+        Pago pago = pagoRepository.findByIdPagoAndSistema_IdSistemaAndBaja(idPago, idSistema, (byte) 0)
                 .orElseThrow(() -> new EntityNotFoundException("Pago no encontrado"));
 
         // RN-F01: only if paid
@@ -69,7 +68,6 @@ public class ReciboService {
         String rutaPdf = guardarPdf(pdfBytes, idProfesional, nroRecibo);
 
         Recibo recibo = Recibo.builder()
-                .uuid(UUID.randomUUID().toString())
                 .pago(pago)
                 .nroRecibo(nroRecibo)
                 .montoTotal(pago.getMonto())
@@ -79,15 +77,16 @@ public class ReciboService {
                 .sistema(sistema)
                 .baja((byte) 0)
                 .build();
+        // idRecibo generated in @PrePersist
 
         recibo = reciboRepository.save(recibo);
         return toResponse(recibo);
     }
 
     @Transactional(readOnly = true)
-    public byte[] descargar(String reciboUuid) {
-        Integer idSistema = SecurityContextUtil.getCurrentIdSistema();
-        Recibo recibo = reciboRepository.findByUuidAndSistema_IdSistemaAndBaja(reciboUuid, idSistema, (byte) 0)
+    public byte[] descargar(String idRecibo) {
+        String idSistema = SecurityContextUtil.getCurrentIdSistema();
+        Recibo recibo = reciboRepository.findByIdReciboAndSistema_IdSistemaAndBaja(idRecibo, idSistema, (byte) 0)
                 .orElseThrow(() -> new EntityNotFoundException("Recibo no encontrado"));
 
         try {
@@ -98,15 +97,13 @@ public class ReciboService {
     }
 
     @Transactional(readOnly = true)
-    public List<ReciboResponse> obtenerPorPaciente(String pacienteUuid) {
-        // Need to look up by the pago→turno→paciente chain
+    public List<ReciboResponse> obtenerPorPaciente(String idPaciente) {
         return reciboRepository.findByPago_Turno_Paciente_IdPacienteAndBajaOrderByFechaEmisionDesc(
-                // This is a workaround — in production use a proper join query
-                -1, (byte) 0 // placeholder — will use a findAll filter for now
-        ).stream().map(this::toResponse).collect(Collectors.toList());
+                idPaciente, (byte) 0)
+                .stream().map(this::toResponse).collect(Collectors.toList());
     }
 
-    private String generarNroRecibo(Integer idProfesional, int year) {
+    private String generarNroRecibo(String idProfesional, int year) {
         int nextNum = 1;
         var lastOpt = reciboRepository.findLastNroReciboByProfesionalAndYear(idProfesional, year);
         if (lastOpt.isPresent()) {
@@ -212,7 +209,7 @@ public class ReciboService {
         return cell;
     }
 
-    private String guardarPdf(byte[] pdfBytes, Integer idProfesional, String nroRecibo) {
+    private String guardarPdf(byte[] pdfBytes, String idProfesional, String nroRecibo) {
         try {
             String dir = pdfStoragePath + "/" + idProfesional;
             Files.createDirectories(Path.of(dir));
@@ -226,13 +223,13 @@ public class ReciboService {
 
     private ReciboResponse toResponse(Recibo r) {
         return new ReciboResponse(
-                r.getUuid(), r.getNroRecibo(), r.getMontoTotal(),
+                r.getIdRecibo(), r.getNroRecibo(), r.getMontoTotal(),
                 r.getFechaEmision(), r.getRutaPdf());
     }
 
-    public void anular(String uuid) {
-        Integer idSistema = SecurityContextUtil.getCurrentIdSistema();
-        Recibo recibo = reciboRepository.findByUuidAndSistema_IdSistemaAndBaja(uuid, idSistema, (byte) 0)
+    public void anular(String idRecibo) {
+        String idSistema = SecurityContextUtil.getCurrentIdSistema();
+        Recibo recibo = reciboRepository.findByIdReciboAndSistema_IdSistemaAndBaja(idRecibo, idSistema, (byte) 0)
                 .orElseThrow(() -> new EntityNotFoundException("Recibo no encontrado"));
         recibo.setBaja((byte) 1); // RN-F04: anulado, number not reused
         reciboRepository.save(recibo);

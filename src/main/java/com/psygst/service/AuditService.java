@@ -23,8 +23,8 @@ public class AuditService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void log(String accion, String modulo, String datos, String ipOrigen) {
         try {
-            Integer idSistema = SecurityContextUtil.getCurrentIdSistema();
-            String idUsuario = String.valueOf(SecurityContextUtil.getCurrentIdAuth());
+            String idSistema = SecurityContextUtil.getCurrentIdSistema();
+            String idUsuario = SecurityContextUtil.getCurrentIdAuth(); // String UUID
 
             Sistema sistema = sistemaRepository.findById(idSistema).orElse(null);
 

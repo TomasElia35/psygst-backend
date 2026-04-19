@@ -3,6 +3,7 @@ package com.psygst.model;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "T_Notificacion")
@@ -14,18 +15,15 @@ import java.time.LocalDateTime;
 public class Notificacion {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer idNotificacion;
-
-    @Column(nullable = false, unique = false, length = 36)
-    private String uuid;
+    @Column(name = "IdNotificacion", length = 36)
+    private String idNotificacion;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idTurno")
+    @JoinColumn(name = "IdTurno")
     private Turno turno;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idPaciente")
+    @JoinColumn(name = "IdPaciente")
     private Paciente paciente;
 
     /**
@@ -58,11 +56,11 @@ public class Notificacion {
     private LocalDateTime fechaEnvio;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idProfesional")
+    @JoinColumn(name = "IdProfesional")
     private Profesional profesional;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idSistema")
+    @JoinColumn(name = "IdSistema")
     private Sistema sistema;
 
     @Column(nullable = false)
@@ -72,6 +70,7 @@ public class Notificacion {
 
     @PrePersist
     protected void onCreate() {
+        if (idNotificacion == null) idNotificacion = UUID.randomUUID().toString();
         fechaCreacion = LocalDateTime.now();
     }
 }

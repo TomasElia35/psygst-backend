@@ -34,7 +34,7 @@ public class FacturaController {
 
     @GetMapping("/{uuid}/descargar")
     public ResponseEntity<Resource> descargar(@PathVariable String uuid) {
-        Factura factura = facturaService.obtenerPorUuid(uuid);
+        Factura factura = facturaService.obtenerPorId(uuid);
         Resource resource = facturaService.descargarFactura(uuid);
 
         String contentType = "application/octet-stream";

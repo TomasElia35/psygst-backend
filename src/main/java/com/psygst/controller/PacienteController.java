@@ -43,7 +43,7 @@ public class PacienteController {
     @DeleteMapping("/{uuid}")
     public ResponseEntity<Void> darDeBaja(
             @PathVariable String uuid,
-            @RequestParam Integer idMotivo) {
+            @RequestParam String idMotivo) {
         pacienteService.darDeBaja(uuid, idMotivo);
         return ResponseEntity.noContent().build();
     }

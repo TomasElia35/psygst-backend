@@ -3,6 +3,7 @@ package com.psygst.model;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "T_HistoriaClinica")
@@ -14,18 +15,15 @@ import java.time.LocalDateTime;
 public class HistoriaClinica {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer idHistoriaClinica;
-
-    @Column(nullable = false, unique = false, length = 36)
-    private String uuid;
+    @Column(name = "IdHistoriaClinica", length = 36)
+    private String idHistoriaClinica;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idPaciente")
+    @JoinColumn(name = "IdPaciente")
     private Paciente paciente;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idTurno")
+    @JoinColumn(name = "IdTurno")
     private Turno turno;
 
     /**
@@ -40,11 +38,11 @@ public class HistoriaClinica {
     private String resumen; // unencrypted short summary for list view
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idProfesional")
+    @JoinColumn(name = "IdProfesional")
     private Profesional profesional;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idSistema")
+    @JoinColumn(name = "IdSistema")
     private Sistema sistema;
 
     /** RN-H03: never physical delete */
@@ -56,6 +54,7 @@ public class HistoriaClinica {
 
     @PrePersist
     protected void onCreate() {
+        if (idHistoriaClinica == null) idHistoriaClinica = UUID.randomUUID().toString();
         fechaCreacion = LocalDateTime.now();
         fechaModificacion = LocalDateTime.now();
     }

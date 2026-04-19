@@ -15,6 +15,12 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * JWT filter — post UUID migration.
+ * All ID claims are now String. Tokens issued before the migration
+ * will fail claim extraction (null) and be treated as unauthenticated,
+ * forcing re-login.
+ */
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -40,19 +46,21 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
-        Integer idSistema = jwtProvider.extractIdSistema(token);
-        Integer idProfesional = jwtProvider.extractIdProfesional(token);
-        Integer idRol = jwtProvider.extractIdRol(token);
-        Integer idAuth = jwtProvider.extractIdAuth(token);
-        String username = jwtProvider.extractUsername(token);
+        String idSistema     = jwtProvider.extractIdSistema(token);
+        String idProfesional = jwtProvider.extractIdProfesional(token);
+        String idRol         = jwtProvider.extractIdRol(token);
+        String idAuth        = jwtProvider.extractIdAuth(token);
+        String username      = jwtProvider.extractUsername(token);
 
-        String role = (idRol == 1) ? "ROLE_ADMIN" : "ROLE_PROFESIONAL";
+        // idRol holds the role name string (ROLE_ADMIN / ROLE_PROFESIONAL)
+        String roleAuthority = (idRol != null && (idRol.equals("ROLE_ADMIN") || idRol.equals("ADMIN")))
+                ? "ROLE_ADMIN" : "ROLE_PROFESIONAL";
 
         PsygstUserDetails userDetails = new PsygstUserDetails(
                 idAuth, idProfesional, idSistema, idRol, username);
 
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                userDetails, null, List.of(new SimpleGrantedAuthority(role)));
+                userDetails, null, List.of(new SimpleGrantedAuthority(roleAuthority)));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         filterChain.doFilter(request, response);

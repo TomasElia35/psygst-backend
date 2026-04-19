@@ -3,27 +3,29 @@ package com.psygst.model;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "T_Auth")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class Auth {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer idAuth;
+    @Id
+    @Column(name = "IdAuth", length = 36)
+    private String idAuth;
 
     @Column(nullable = false, unique = true, length = 100)
     private String username;
 
     @Column(nullable = false, length = 255)
-    private String password;  // bcrypt hash
+    private String password;  // bcrypt hash (RN-S02)
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "idRol")
+    @JoinColumn(name = "IdRol")
     private Rol rol;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idProfesional")
+    @JoinColumn(name = "IdProfesional")
     private Profesional profesional;
 
     @Column(nullable = false)
@@ -36,5 +38,8 @@ public class Auth {
     private LocalDateTime ultimoAcceso;
 
     @PrePersist
-    protected void onCreate() { fechaCreacion = LocalDateTime.now(); }
+    protected void onCreate() {
+        if (idAuth == null) idAuth = UUID.randomUUID().toString();
+        fechaCreacion = LocalDateTime.now();
+    }
 }

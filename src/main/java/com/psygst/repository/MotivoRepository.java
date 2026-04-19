@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface MotivoRepository extends JpaRepository<Motivo, Integer> {
+public interface MotivoRepository extends JpaRepository<Motivo, String> {
     List<Motivo> findByBaja(Byte baja);
 }

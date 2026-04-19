@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "T_Recibo")
@@ -15,14 +16,11 @@ import java.time.LocalDateTime;
 public class Recibo {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer idRecibo;
-
-    @Column(nullable = false, unique = false, length = 36)
-    private String uuid;
+    @Column(name = "IdRecibo", length = 36)
+    private String idRecibo;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idPago")
+    @JoinColumn(name = "IdPago")
     private Pago pago;
 
     /** RN-F02: REC-{AÑO}-{NNNNN}, correlative per profesional */
@@ -38,11 +36,11 @@ public class Recibo {
     private LocalDateTime fechaEmision;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idProfesional")
+    @JoinColumn(name = "IdProfesional")
     private Profesional profesional;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idSistema")
+    @JoinColumn(name = "IdSistema")
     private Sistema sistema;
 
     @Column(nullable = false)
@@ -52,6 +50,7 @@ public class Recibo {
 
     @PrePersist
     protected void onCreate() {
+        if (idRecibo == null) idRecibo = UUID.randomUUID().toString();
         fechaCreacion = LocalDateTime.now();
     }
 }

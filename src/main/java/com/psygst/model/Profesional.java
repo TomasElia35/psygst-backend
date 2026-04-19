@@ -3,17 +3,16 @@ package com.psygst.model;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "T_Profesional")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class Profesional {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer idProfesional;
-
-    @Column(nullable = false, unique = true, length = 36)
-    private String uuid;
+    @Id
+    @Column(name = "IdProfesional", length = 36)
+    private String idProfesional;
 
     @Column(nullable = false, length = 100)
     private String nombre;
@@ -40,11 +39,11 @@ public class Profesional {
     private String alias;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idProfesion")
+    @JoinColumn(name = "IdProfesion")
     private Profesion profesion;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idSistema")
+    @JoinColumn(name = "IdSistema")
     private Sistema sistema;
 
     @Column(nullable = false)
@@ -55,6 +54,7 @@ public class Profesional {
 
     @PrePersist
     protected void onCreate() {
+        if (idProfesional == null) idProfesional = UUID.randomUUID().toString();
         fechaCreacion = LocalDateTime.now();
         fechaModificacion = LocalDateTime.now();
     }

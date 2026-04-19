@@ -17,7 +17,6 @@ import java.util.Locale;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -77,6 +76,7 @@ public class NotificacionService {
 
     @Transactional
     public void procesarCancelacion(Turno turno) {
+        // RN-N03: annul pending reminders
         List<Notificacion> reminders = notificacionRepository.findPendingRemindersByTurno(turno.getIdTurno());
         reminders.forEach(n -> {
             n.setEstado("CANCELADO");
@@ -100,7 +100,6 @@ public class NotificacionService {
 
     private Notificacion crearNotificacion(Turno turno, String tipo, String canal, LocalDateTime fechaProgramada) {
         Notificacion n = Notificacion.builder()
-                .uuid(UUID.randomUUID().toString())
                 .turno(turno)
                 .paciente(turno.getPaciente())
                 .tipo(tipo)
@@ -112,6 +111,7 @@ public class NotificacionService {
                 .sistema(turno.getSistema())
                 .baja((byte) 0)
                 .build();
+        // idNotificacion generated in @PrePersist
         return notificacionRepository.save(n);
     }
 
@@ -202,23 +202,22 @@ public class NotificacionService {
 
     @Transactional(readOnly = true)
     public List<NotificacionResponse> obtenerFallidas() {
-        Integer idProfesional = SecurityContextUtil.getCurrentIdProfesional();
+        String idProfesional = SecurityContextUtil.getCurrentIdProfesional();
         return notificacionRepository
                 .findByProfesional_IdProfesionalAndEstadoAndBaja(idProfesional, "FALLIDO", (byte) 0)
                 .stream().map(this::toResponse).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public List<NotificacionResponse> obtenerPorTurno(String turnoUuid) {
-        return notificacionRepository.findAll().stream()
-                .filter(n -> n.getTurno().getUuid().equals(turnoUuid) && n.getBaja() == 0)
-                .map(this::toResponse).collect(Collectors.toList());
+    public List<NotificacionResponse> obtenerPorTurno(String idTurno) {
+        return notificacionRepository.findByTurno_IdTurnoAndBaja(idTurno, (byte) 0)
+                .stream().map(this::toResponse).collect(Collectors.toList());
     }
 
     @Transactional
-    public void reenviar(String uuid) {
-        Integer idSistema = SecurityContextUtil.getCurrentIdSistema();
-        Notificacion n = notificacionRepository.findByUuidAndSistema_IdSistemaAndBaja(uuid, idSistema, (byte) 0)
+    public void reenviar(String idNotificacion) {
+        String idSistema = SecurityContextUtil.getCurrentIdSistema();
+        Notificacion n = notificacionRepository.findByIdNotificacionAndSistema_IdSistemaAndBaja(idNotificacion, idSistema, (byte) 0)
                 .orElseThrow(() -> new EntityNotFoundException("Notificación no encontrada"));
         n.setEstado("PENDIENTE");
         n.setIntentos(0);
@@ -228,18 +227,19 @@ public class NotificacionService {
     }
 
     @Transactional
-    public void enviarDatosPago(String turnoUuid) {
-        notificacionRepository.findAll().stream()
-                .filter(n -> n.getTurno().getUuid().equals(turnoUuid) && n.getBaja() == 0)
+    public void enviarDatosPago(String idTurno) {
+        notificacionRepository.findByTurno_IdTurnoAndBaja(idTurno, (byte) 0)
+                .stream()
+                .filter(n -> n.getBaja() == 0)
                 .findFirst()
                 .ifPresent(n -> crearNotificacion(n.getTurno(), "DATOS_PAGO", "WHATSAPP", LocalDateTime.now()));
     }
 
     private NotificacionResponse toResponse(Notificacion n) {
         return new NotificacionResponse(
-                n.getUuid(), n.getTipo(), n.getCanal(), n.getEstado(),
+                n.getIdNotificacion(), n.getTipo(), n.getCanal(), n.getEstado(),
                 n.getIntentos(), n.getDetalle(), n.getFechaProgramada(), n.getFechaEnvio(),
-                n.getTurno() != null ? n.getTurno().getUuid() : null,
+                n.getTurno() != null ? n.getTurno().getIdTurno() : null,
                 n.getPaciente() != null ? n.getPaciente().getNombre() + " " + n.getPaciente().getApellido() : null);
     }
 }
