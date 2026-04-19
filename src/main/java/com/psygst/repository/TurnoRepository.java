@@ -49,7 +49,7 @@ public interface TurnoRepository extends JpaRepository<Turno, String> {
 
     List<Turno> findByPaciente_IdPacienteAndBajaOrderByFechaDesc(String idPaciente, Byte baja);
 
-    @Query("SELECT t FROM Turno t WHERE t.idTurno = :idTurno AND t.sistema.idSistema = :idSistema AND t.baja = 0")
+    @Query("SELECT t FROM Turno t WHERE t.idTurno = :idTurno AND t.sistema.idSistema = :idSistema AND t.baja = :baja")
     java.util.Optional<Turno> findByIdTurnoAndSistema_IdSistemaAndBaja(
             @Param("idTurno") String idTurno, @Param("idSistema") String idSistema, @Param("baja") Byte baja);
 }
