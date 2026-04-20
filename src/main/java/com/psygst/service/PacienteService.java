@@ -62,11 +62,14 @@ public class PacienteService {
         Profesional profesional = profesionalRepository.findById(idProfesional)
                 .orElseThrow(() -> new BadRequestException("Profesional no encontrado"));
 
-        // idObraSocial now is a UUID String; null → use default "Particular"
-        ObraSocial obraSocial = null;
+        // idObraSocial now is a UUID String; null -> use default "Particular"
+        ObraSocial obraSocial;
         if (request.idObraSocial() != null && !request.idObraSocial().isBlank()) {
             obraSocial = obraSocialRepository.findById(request.idObraSocial())
                     .orElseThrow(() -> new BadRequestException("Obra social no encontrada"));
+        } else {
+            obraSocial = obraSocialRepository.findByNombreIgnoreCase("Particular")
+                    .orElseGet(() -> obraSocialRepository.save(ObraSocial.builder().nombre("Particular").baja((byte) 0).build()));
         }
 
         Paciente paciente = Paciente.builder()
@@ -99,10 +102,13 @@ public class PacienteService {
             }
         }
 
-        ObraSocial obraSocial = null;
+        ObraSocial obraSocial;
         if (request.idObraSocial() != null && !request.idObraSocial().isBlank()) {
             obraSocial = obraSocialRepository.findById(request.idObraSocial())
                     .orElseThrow(() -> new BadRequestException("Obra social no encontrada"));
+        } else {
+            obraSocial = obraSocialRepository.findByNombreIgnoreCase("Particular")
+                    .orElseGet(() -> obraSocialRepository.save(ObraSocial.builder().nombre("Particular").baja((byte) 0).build()));
         }
 
         paciente.setNombre(request.nombre());
