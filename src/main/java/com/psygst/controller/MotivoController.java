@@ -17,6 +17,6 @@ public class MotivoController {
 
     @GetMapping
     public ResponseEntity<List<Motivo>> listar() {
-        return ResponseEntity.ok(motivoRepository.findByBaja((byte) 0));
+        return ResponseEntity.ok(motivoRepository.findByBaja(false));
     }
 }

@@ -16,14 +16,14 @@ import java.util.UUID;
 public class Recibo {
 
     @Id
-    @Column(name = "IdRecibo", length = 36)
+    @Column(name = "IdRecibo", columnDefinition = "uuid")
     private String idRecibo;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "IdPago")
     private Pago pago;
 
-    /** RN-F02: REC-{AÑO}-{NNNNN}, correlative per profesional */
+    /** RN-F02: REC-{AÃ‘O}-{NNNNN}, correlative per profesional */
     @Column(nullable = false, length = 20)
     private String nroRecibo;
 
@@ -44,7 +44,7 @@ public class Recibo {
     private Sistema sistema;
 
     @Column(nullable = false)
-    private Byte baja = 0; // RN-F04: anulado, no se reutiliza el número
+    private Boolean baja = false; // RN-F04: anulado, no se reutiliza el nÃºmero
 
     private LocalDateTime fechaCreacion;
 

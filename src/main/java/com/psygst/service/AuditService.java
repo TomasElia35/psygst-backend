@@ -36,7 +36,7 @@ public class AuditService {
                     .ipOrigen(ipOrigen)
                     .timestamp(LocalDateTime.now())
                     .sistema(sistema)
-                    .baja((byte) 0)
+                    .baja(false)
                     .build();
 
             logGeneralRepository.save(entry);

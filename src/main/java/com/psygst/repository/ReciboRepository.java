@@ -12,7 +12,7 @@ import java.util.Optional;
 @Repository
 public interface ReciboRepository extends JpaRepository<Recibo, String> {
 
-    Optional<Recibo> findByIdReciboAndSistema_IdSistemaAndBaja(String idRecibo, String idSistema, Byte baja);
+    Optional<Recibo> findByIdReciboAndSistema_IdSistemaAndBaja(String idRecibo, String idSistema, Boolean baja);
 
     /** RN-F02: max correlative number for prof in a given year */
     @Query("SELECT MAX(r.nroRecibo) FROM Recibo r " +
@@ -22,5 +22,5 @@ public interface ReciboRepository extends JpaRepository<Recibo, String> {
             @Param("idProfesional") String idProfesional, @Param("year") int year);
 
     List<Recibo> findByPago_Turno_Paciente_IdPacienteAndBajaOrderByFechaEmisionDesc(
-            String idPaciente, Byte baja);
+            String idPaciente, Boolean baja);
 }

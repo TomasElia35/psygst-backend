@@ -33,7 +33,7 @@ public class HistoriaClinicaService {
         // RN-H01: only owner can read
         List<HistoriaClinica> notas = historiaClinicaRepository
                 .findByPaciente_IdPacienteAndProfesional_IdProfesionalAndBajaOrderByFechaCreacionDesc(
-                        idPaciente, idProfesional, (byte) 0);
+                        idPaciente, idProfesional, false);
 
         auditService.log("VER_LISTA_HC", "HISTORIA_CLINICA",
                 "{\"idPaciente\":\"" + idPaciente + "\"}", ipOrigen);
@@ -49,8 +49,8 @@ public class HistoriaClinicaService {
     public HistoriaClinicaResponse obtener(String id, String ipOrigen) {
         String idProfesional = SecurityContextUtil.getCurrentIdProfesional();
         HistoriaClinica nota = historiaClinicaRepository
-                .findByIdHistoriaClinicaAndProfesional_IdProfesionalAndBaja(id, idProfesional, (byte) 0)
-                .orElseThrow(() -> new EntityNotFoundException("Nota clínica no encontrada"));
+                .findByIdHistoriaClinicaAndProfesional_IdProfesionalAndBaja(id, idProfesional, false)
+                .orElseThrow(() -> new EntityNotFoundException("Nota clÃ­nica no encontrada"));
 
         auditService.log("VER_NOTA_HC", "HISTORIA_CLINICA",
                 "{\"idHistoriaClinica\":\"" + id + "\"}", ipOrigen);
@@ -70,7 +70,7 @@ public class HistoriaClinicaService {
         String idSistema     = SecurityContextUtil.getCurrentIdSistema();
 
         Paciente paciente = pacienteRepository
-                .findByIdPacienteAndSistema_IdSistemaAndBaja(request.pacienteUuid(), idSistema, (byte) 0)
+                .findByIdPacienteAndSistema_IdSistemaAndBaja(request.pacienteUuid(), idSistema, false)
                 .orElseThrow(() -> new EntityNotFoundException("Paciente no encontrado"));
 
         Profesional profesional = profesionalRepository.findById(idProfesional)
@@ -81,7 +81,7 @@ public class HistoriaClinicaService {
 
         Turno turno = null;
         if (request.turnoUuid() != null) {
-            turno = turnoRepository.findByIdTurnoAndSistema_IdSistemaAndBaja(request.turnoUuid(), idSistema, (byte) 0)
+            turno = turnoRepository.findByIdTurnoAndSistema_IdSistemaAndBaja(request.turnoUuid(), idSistema, false)
                     .orElse(null);
         }
 
@@ -95,7 +95,7 @@ public class HistoriaClinicaService {
                 .resumen(request.resumen())
                 .profesional(profesional)
                 .sistema(sistema)
-                .baja((byte) 0)
+                .baja(false)
                 .build();
         // idHistoriaClinica generated in @PrePersist
 
@@ -114,9 +114,9 @@ public class HistoriaClinicaService {
     public void eliminar(String id) {
         String idProfesional = SecurityContextUtil.getCurrentIdProfesional();
         HistoriaClinica nota = historiaClinicaRepository
-                .findByIdHistoriaClinicaAndProfesional_IdProfesionalAndBaja(id, idProfesional, (byte) 0)
-                .orElseThrow(() -> new EntityNotFoundException("Nota clínica no encontrada"));
-        nota.setBaja((byte) 1); // logical delete only
+                .findByIdHistoriaClinicaAndProfesional_IdProfesionalAndBaja(id, idProfesional, false)
+                .orElseThrow(() -> new EntityNotFoundException("Nota clÃ­nica no encontrada"));
+        nota.setBaja(true); // logical delete only
         historiaClinicaRepository.save(nota);
     }
 }

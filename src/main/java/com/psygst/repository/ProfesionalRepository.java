@@ -8,5 +8,5 @@ import java.util.Optional;
 
 @Repository
 public interface ProfesionalRepository extends JpaRepository<Profesional, String> {
-    Optional<Profesional> findByIdProfesionalAndBaja(String idProfesional, Byte baja);
+    Optional<Profesional> findByIdProfesionalAndBaja(String idProfesional, Boolean baja);
 }

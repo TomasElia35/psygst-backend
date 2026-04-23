@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface ProfesionRepository extends JpaRepository<Profesion, String> {
-    List<Profesion> findByBaja(Byte baja);
+    List<Profesion> findByBaja(Boolean baja);
 }

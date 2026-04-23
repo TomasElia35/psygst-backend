@@ -14,7 +14,7 @@ import java.util.List;
 public interface TurnoRepository extends JpaRepository<Turno, String> {
 
     List<Turno> findByProfesional_IdProfesionalAndFechaAndBaja(
-            String idProfesional, LocalDate fecha, Byte baja);
+            String idProfesional, LocalDate fecha, Boolean baja);
 
     @Query("SELECT t FROM Turno t WHERE t.profesional.idProfesional = :idProfesional " +
             "AND t.baja = 0 AND t.fecha >= :fechaInicio AND t.fecha <= :fechaFin")
@@ -23,9 +23,9 @@ public interface TurnoRepository extends JpaRepository<Turno, String> {
             @Param("fechaFin") LocalDate fechaFin);
 
     /**
-     * RN-T01: Overlap check — finds any ACTIVE (CONFIRMADO or REALIZADO) turno
+     * RN-T01: Overlap check â€” finds any ACTIVE (CONFIRMADO or REALIZADO) turno
      * for the same profesional on same date that overlaps the given time range.
-     * A turno is CANCELADO or has baja=1 → does NOT block.
+     * A turno is CANCELADO or has baja=1 â†’ does NOT block.
      * Overlap formula: existing.horaComienzo < newFin AND existing.horaFin > newComienzo
      */
     @Query("SELECT COUNT(t) > 0 FROM Turno t " +
@@ -47,9 +47,9 @@ public interface TurnoRepository extends JpaRepository<Turno, String> {
             "AND t.estado = 'CONFIRMADO' AND t.fecha > CURRENT_DATE AND t.baja = 0")
     List<Turno> findFutureConfirmedByPaciente(@Param("idPaciente") String idPaciente);
 
-    List<Turno> findByPaciente_IdPacienteAndBajaOrderByFechaDesc(String idPaciente, Byte baja);
+    List<Turno> findByPaciente_IdPacienteAndBajaOrderByFechaDesc(String idPaciente, Boolean baja);
 
     @Query("SELECT t FROM Turno t WHERE t.idTurno = :idTurno AND t.sistema.idSistema = :idSistema AND t.baja = :baja")
     java.util.Optional<Turno> findByIdTurnoAndSistema_IdSistemaAndBaja(
-            @Param("idTurno") String idTurno, @Param("idSistema") String idSistema, @Param("baja") Byte baja);
+            @Param("idTurno") String idTurno, @Param("idSistema") String idSistema, @Param("baja") Boolean baja);
 }

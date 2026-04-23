@@ -30,27 +30,27 @@ public class UserCreatorRunner implements CommandLineRunner {
         
         if (username != null && password != null) {
             log.info("========================================");
-            log.info("Iniciando script de creación de usuario para: {}", username);
+            log.info("Iniciando script de creaciÃ³n de usuario para: {}", username);
             
             if (authRepository.findByUsername(username).isPresent()) {
-                log.warn("El usuario '{}' ya existe en la base de datos. Saltando creación.", username);
+                log.warn("El usuario '{}' ya existe en la base de datos. Saltando creaciÃ³n.", username);
                 log.info("========================================");
                 return;
             }
 
             Rol rolAdmin = rolRepository.findByNombre("ROLE_ADMIN")
-                    .orElseGet(() -> rolRepository.save(Rol.builder().nombre("ROLE_ADMIN").baja((byte) 0).build()));
+                    .orElseGet(() -> rolRepository.save(Rol.builder().nombre("ROLE_ADMIN").baja(false).build()));
 
             Auth newAuth = Auth.builder()
                     .username(username)
                     .password(passwordEncoder.encode(password))
                     .rol(rolAdmin)
                     .activo(true)
-                    .baja((byte) 0)
+                    .baja(false)
                     .build();
 
             authRepository.save(newAuth);
-            log.info("✅ Usuario '{}' creado exitosamente con contraseña encriptada.", username);
+            log.info("âœ… Usuario '{}' creado exitosamente con contraseÃ±a encriptada.", username);
             log.info("========================================");
         }
     }

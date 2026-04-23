@@ -13,9 +13,9 @@ import java.util.Optional;
 @Repository
 public interface PagoRepository extends JpaRepository<Pago, String> {
 
-        Optional<Pago> findByTurno_IdTurnoAndBaja(String idTurno, Byte baja);
+        Optional<Pago> findByTurno_IdTurnoAndBaja(String idTurno, Boolean baja);
 
-        Optional<Pago> findByIdPagoAndSistema_IdSistemaAndBaja(String idPago, String idSistema, Byte baja);
+        Optional<Pago> findByIdPagoAndSistema_IdSistemaAndBaja(String idPago, String idSistema, Boolean baja);
 
         @Query("SELECT p FROM Pago p WHERE p.profesional.idProfesional = :idProfesional " +
                         "AND p.baja = 0 AND p.pagado = false")

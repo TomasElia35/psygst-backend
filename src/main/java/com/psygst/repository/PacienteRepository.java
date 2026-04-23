@@ -14,12 +14,12 @@ import java.util.Optional;
 public interface PacienteRepository extends JpaRepository<Paciente, String> {
 
     /** RN-P01: DNI unique per tenant among active patients */
-    boolean existsByDniAndSistema_IdSistemaAndBaja(String dni, String idSistema, Byte baja);
+    boolean existsByDniAndSistema_IdSistemaAndBaja(String dni, String idSistema, Boolean baja);
 
-    Optional<Paciente> findByIdPacienteAndSistema_IdSistemaAndBaja(String idPaciente, String idSistema, Byte baja);
+    Optional<Paciente> findByIdPacienteAndSistema_IdSistemaAndBaja(String idPaciente, String idSistema, Boolean baja);
 
     Page<Paciente> findByProfesional_IdProfesionalAndSistema_IdSistemaAndBaja(
-            String idProfesional, String idSistema, Byte baja, Pageable pageable);
+            String idProfesional, String idSistema, Boolean baja, Pageable pageable);
 
     @Query("SELECT p FROM Paciente p WHERE p.sistema.idSistema = :idSistema AND p.baja = 0 " +
             "AND (LOWER(p.nombre) LIKE LOWER(CONCAT('%', :q, '%')) OR LOWER(p.apellido) LIKE LOWER(CONCAT('%', :q, '%')) OR p.dni LIKE CONCAT('%', :q, '%'))")

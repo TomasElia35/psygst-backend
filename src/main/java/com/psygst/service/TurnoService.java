@@ -63,7 +63,7 @@ public class TurnoService {
         }
 
         Paciente paciente = pacienteRepository.findByIdPacienteAndSistema_IdSistemaAndBaja(
-                request.pacienteUuid(), idSistema, (byte) 0)
+                request.pacienteUuid(), idSistema, false)
                 .orElseThrow(() -> new EntityNotFoundException("Paciente no encontrado"));
 
         Profesional profesional = profesionalRepository.findById(idProfesional)
@@ -87,7 +87,7 @@ public class TurnoService {
                 .precioFinal(request.precioFinal())
                 .obraSocial(obraSocial)
                 .observaciones(request.observaciones())
-                .baja((byte) 0)
+                .baja(false)
                 .build();
         // idTurno generated in @PrePersist
 
@@ -115,7 +115,7 @@ public class TurnoService {
         }
 
         if (!"CANCELADO".equals(nuevoEstado) && !"REALIZADO".equals(nuevoEstado)) {
-            throw new BadRequestException("Estado inválido. Valores permitidos: CANCELADO, REALIZADO");
+            throw new BadRequestException("Estado invÃ¡lido. Valores permitidos: CANCELADO, REALIZADO");
         }
 
         turno.setEstado(nuevoEstado);
@@ -168,13 +168,13 @@ public class TurnoService {
     @Transactional
     public void eliminar(String id) {
         Turno turno = findById(id);
-        turno.setBaja((byte) 1);
+        turno.setBaja(true);
         turnoRepository.save(turno);
     }
 
     private Turno findById(String id) {
         String idSistema = SecurityContextUtil.getCurrentIdSistema();
-        return turnoRepository.findByIdTurnoAndSistema_IdSistemaAndBaja(id, idSistema, (byte) 0)
+        return turnoRepository.findByIdTurnoAndSistema_IdSistemaAndBaja(id, idSistema, false)
                 .orElseThrow(() -> new EntityNotFoundException("Turno no encontrado"));
     }
 

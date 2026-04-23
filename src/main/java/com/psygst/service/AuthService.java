@@ -26,7 +26,7 @@ public class AuthService {
 
     @Transactional
     public LoginResponse login(LoginRequest request) {
-        Auth auth = authRepository.findByUsernameAndBaja(request.username(), (byte) 0)
+        Auth auth = authRepository.findByUsernameAndBaja(request.username(), false)
                 .orElseThrow(() -> new BadRequestException("Usuario no encontrado"));
 
         if (!auth.getActivo()) {
@@ -34,7 +34,7 @@ public class AuthService {
         }
 
         if (!passwordEncoder.matches(request.password(), auth.getPassword())) {
-            throw new BadRequestException("Contraseña incorrecta");
+            throw new BadRequestException("ContraseÃ±a incorrecta");
         }
 
         auth.setUltimoAcceso(LocalDateTime.now());
@@ -63,11 +63,11 @@ public class AuthService {
 
     @Transactional
     public void cambiarPassword(String username, String oldPassword, String newPassword) {
-        Auth auth = authRepository.findByUsernameAndBaja(username, (byte) 0)
+        Auth auth = authRepository.findByUsernameAndBaja(username, false)
                 .orElseThrow(() -> new BadRequestException("Usuario no encontrado"));
 
         if (!passwordEncoder.matches(oldPassword, auth.getPassword())) {
-            throw new BadRequestException("Contraseña actual incorrecta");
+            throw new BadRequestException("ContraseÃ±a actual incorrecta");
         }
 
         auth.setPassword(passwordEncoder.encode(newPassword));
@@ -76,8 +76,8 @@ public class AuthService {
 
     @Transactional
     public void register(RegisterRequest request) {
-        if (authRepository.findByUsernameAndBaja(request.username(), (byte) 0).isPresent()) {
-            throw new BadRequestException("El nombre de usuario ya está en uso");
+        if (authRepository.findByUsernameAndBaja(request.username(), false).isPresent()) {
+            throw new BadRequestException("El nombre de usuario ya estÃ¡ en uso");
         }
 
         // idRol is now a UUID String
@@ -89,14 +89,14 @@ public class AuthService {
                 .password(passwordEncoder.encode(request.password()))
                 .rol(rol)
                 .activo(true)
-                .baja((byte) 0)
+                .baja(false)
                 .build();
 
         if ("PROFESIONAL".equals(rol.getNombre())) {
             Sistema sistema = Sistema.builder()
                     .nombre("Consultorio de " + request.nombre() + " " + request.apellido())
                     .activo(true)
-                    .baja((byte) 0)
+                    .baja(false)
                     .build();
             sistema = sistemaRepository.save(sistema);
 
@@ -106,7 +106,7 @@ public class AuthService {
                     .email(request.email())
                     .celular(request.celular())
                     .sistema(sistema)
-                    .baja((byte) 0)
+                    .baja(false)
                     .build();
             // idProfesional generated in @PrePersist
             profesional = profesionalRepository.save(profesional);
@@ -122,9 +122,9 @@ public class AuthService {
                     "Hola %s!\n\nTu cuenta ha sido creada exitosamente.\n\n" +
                             "Tus credenciales de acceso son:\n" +
                             "Usuario: %s\n" +
-                            "Contraseña: (la que elegiste al registrarte)\n\n" +
-                            "Puedes iniciar sesión en: https://psygst-frontend.vercel.app/login\n\n" +
-                            "¡Éxitos!",
+                            "ContraseÃ±a: (la que elegiste al registrarte)\n\n" +
+                            "Puedes iniciar sesiÃ³n en: https://psygst-frontend.vercel.app/login\n\n" +
+                            "Â¡Ã‰xitos!",
                     request.nombre(), request.username());
             try {
                 emailService.enviar(request.email(), subject, body);

@@ -15,7 +15,7 @@ import java.util.UUID;
 public class HistoriaClinica {
 
     @Id
-    @Column(name = "IdHistoriaClinica", length = 36)
+    @Column(name = "IdHistoriaClinica", columnDefinition = "uuid")
     private String idHistoriaClinica;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -47,7 +47,7 @@ public class HistoriaClinica {
 
     /** RN-H03: never physical delete */
     @Column(nullable = false)
-    private Byte baja = 0;
+    private Boolean baja = false;
 
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaModificacion;

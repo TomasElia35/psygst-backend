@@ -8,6 +8,6 @@ import java.util.Optional;
 
 @Repository
 public interface AuthRepository extends JpaRepository<Auth, String> {
-    Optional<Auth> findByUsernameAndBaja(String username, Byte baja);
+    Optional<Auth> findByUsernameAndBaja(String username, Boolean baja);
     Optional<Auth> findByUsername(String username);
 }

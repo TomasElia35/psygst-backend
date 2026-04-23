@@ -11,7 +11,7 @@ import java.util.UUID;
 public class Auth {
 
     @Id
-    @Column(name = "IdAuth", length = 36)
+    @Column(name = "IdAuth", columnDefinition = "uuid")
     private String idAuth;
 
     @Column(nullable = false, unique = true, length = 100)
@@ -32,7 +32,7 @@ public class Auth {
     private Boolean activo = true;
 
     @Column(nullable = false)
-    private Byte baja = 0;
+    private Boolean baja = false;
 
     private LocalDateTime fechaCreacion;
     private LocalDateTime ultimoAcceso;

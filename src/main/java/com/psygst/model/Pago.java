@@ -12,7 +12,7 @@ import java.util.UUID;
 public class Pago {
 
     @Id
-    @Column(name = "IdPago", length = 36)
+    @Column(name = "IdPago", columnDefinition = "uuid")
     private String idPago;
 
     @OneToOne(fetch = FetchType.LAZY)
@@ -44,7 +44,7 @@ public class Pago {
     private Sistema sistema;
 
     @Column(nullable = false)
-    private Byte baja = 0;
+    private Boolean baja = false;
 
     private LocalDateTime fechaCreacion;
 

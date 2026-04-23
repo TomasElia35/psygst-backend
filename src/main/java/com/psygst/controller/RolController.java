@@ -20,7 +20,7 @@ public class RolController {
         // Only expose active roles (baja = 0)
         return ResponseEntity.ok(
                 rolRepository.findAll().stream()
-                        .filter(r -> r.getBaja() == 0)
+                        .filter(r -> r.getBaja() == false)
                         .toList());
     }
 }
