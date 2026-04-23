@@ -109,7 +109,7 @@ public class NotificacionService {
                 .fechaProgramada(fechaProgramada)
                 .profesional(turno.getProfesional())
                 .sistema(turno.getSistema())
-                .baja((byte) 0)
+                .baja(false)
                 .build();
         // idNotificacion generated in @PrePersist
         return notificacionRepository.save(n);
@@ -154,27 +154,27 @@ public class NotificacionService {
         String pacienteNombre = turno.getPaciente().getNombre();
         String profNombre = turno.getProfesional().getApellido() + " " + turno.getProfesional().getNombre();
 
-        // Formateo con día de la semana
+        // Formateo con dÃ­a de la semana
         String fechaFormateada = turno.getFecha().format(dateFormatter);
-        // Capitalizamos el día (ej: Martes)
+        // Capitalizamos el dÃ­a (ej: Martes)
         fechaFormateada = fechaFormateada.substring(0, 1).toUpperCase() + fechaFormateada.substring(1);
         String horaFormateada = turno.getHoraComienzo().toString() + "hs";
 
         return switch (n.getTipo()) {
             case "CONFIRMACION_TURNO" -> String.format(
-                    "✅ Hola %s! Su turno fue confirmado para el %s a las %s. Modalidad: %s. ¡Nos vemos!\nProfesional: %s",
+                    "âœ… Hola %s! Su turno fue confirmado para el %s a las %s. Modalidad: %s. Â¡Nos vemos!\nProfesional: %s",
                     pacienteNombre, fechaFormateada, horaFormateada, turno.getModalidad(), profNombre);
 
             case "RECORDATORIO_24HS" -> String.format(
-                    "Hola %s! Le recordamos su sesión de mañana %s a las %s. Modalidad: %s.",
+                    "Hola %s! Le recordamos su sesiÃ³n de maÃ±ana %s a las %s. Modalidad: %s.",
                     pacienteNombre, fechaFormateada, horaFormateada, turno.getModalidad());
 
             case "CANCELACION" -> String.format(
-                    "Hola %s! Su turno del %s a las %s ha sido cancelado. Comuníquese para reprogramar.",
+                    "Hola %s! Su turno del %s a las %s ha sido cancelado. ComunÃ­quese para reprogramar.",
                     pacienteNombre, fechaFormateada, horaFormateada);
 
             case "DATOS_PAGO" -> buildMensajePago(turno);
-            default -> "Notificación de PsyGst";
+            default -> "NotificaciÃ³n de PsyGst";
         };
     }
 
@@ -184,7 +184,7 @@ public class NotificacionService {
         fechaFormateada = fechaFormateada.substring(0, 1).toUpperCase() + fechaFormateada.substring(1);
 
         return String.format(
-                "Hola %s! Para abonar su sesión del %s, transferí $%.2f a:\nCBU: %s\nAlias: %s",
+                "Hola %s! Para abonar su sesiÃ³n del %s, transferÃ­ $%.2f a:\nCBU: %s\nAlias: %s",
                 turno.getPaciente().getNombre(), fechaFormateada, turno.getPrecioFinal(),
                 prof.getCbu() != null ? prof.getCbu() : "(consultar)",
                 prof.getAlias() != null ? prof.getAlias() : "(consultar)");
@@ -193,10 +193,10 @@ public class NotificacionService {
     private String buildAsunto(Notificacion n) {
         return switch (n.getTipo()) {
             case "CONFIRMACION_TURNO" -> "Turno confirmado - PsyGst";
-            case "RECORDATORIO_24HS" -> "Recordatorio de tu sesión - PsyGst";
+            case "RECORDATORIO_24HS" -> "Recordatorio de tu sesiÃ³n - PsyGst";
             case "CANCELACION" -> "Turno cancelado - PsyGst";
             case "DATOS_PAGO" -> "Datos de pago - PsyGst";
-            default -> "Notificación - PsyGst";
+            default -> "NotificaciÃ³n - PsyGst";
         };
     }
 
@@ -204,21 +204,21 @@ public class NotificacionService {
     public List<NotificacionResponse> obtenerFallidas() {
         String idProfesional = SecurityContextUtil.getCurrentIdProfesional();
         return notificacionRepository
-                .findByProfesional_IdProfesionalAndEstadoAndBaja(idProfesional, "FALLIDO", (byte) 0)
+                .findByProfesional_IdProfesionalAndEstadoAndBaja(idProfesional, "FALLIDO", false)
                 .stream().map(this::toResponse).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
     public List<NotificacionResponse> obtenerPorTurno(String idTurno) {
-        return notificacionRepository.findByTurno_IdTurnoAndBaja(idTurno, (byte) 0)
+        return notificacionRepository.findByTurno_IdTurnoAndBaja(idTurno, false)
                 .stream().map(this::toResponse).collect(Collectors.toList());
     }
 
     @Transactional
     public void reenviar(String idNotificacion) {
         String idSistema = SecurityContextUtil.getCurrentIdSistema();
-        Notificacion n = notificacionRepository.findByIdNotificacionAndSistema_IdSistemaAndBaja(idNotificacion, idSistema, (byte) 0)
-                .orElseThrow(() -> new EntityNotFoundException("Notificación no encontrada"));
+        Notificacion n = notificacionRepository.findByIdNotificacionAndSistema_IdSistemaAndBaja(idNotificacion, idSistema, false)
+                .orElseThrow(() -> new EntityNotFoundException("NotificaciÃ³n no encontrada"));
         n.setEstado("PENDIENTE");
         n.setIntentos(0);
         n.setFechaProgramada(LocalDateTime.now());
@@ -228,9 +228,9 @@ public class NotificacionService {
 
     @Transactional
     public void enviarDatosPago(String idTurno) {
-        notificacionRepository.findByTurno_IdTurnoAndBaja(idTurno, (byte) 0)
+        notificacionRepository.findByTurno_IdTurnoAndBaja(idTurno, false)
                 .stream()
-                .filter(n -> n.getBaja() == 0)
+                .filter(n -> n.getBaja() == false)
                 .findFirst()
                 .ifPresent(n -> crearNotificacion(n.getTurno(), "DATOS_PAGO", "WHATSAPP", LocalDateTime.now()));
     }

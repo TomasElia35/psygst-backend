@@ -10,14 +10,14 @@ import java.util.UUID;
 public class Profesion {
 
     @Id
-    @Column(name = "IdProfesion", length = 36)
+    @Column(name = "IdProfesion", columnDefinition = "uuid")
     private String idProfesion;
 
     @Column(nullable = false, length = 100)
     private String nombre;
 
     @Column(nullable = false)
-    private Byte baja = 0;
+    private Boolean baja = false;
 
     @PrePersist
     protected void onCreate() {

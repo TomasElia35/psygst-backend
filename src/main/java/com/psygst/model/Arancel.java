@@ -12,7 +12,7 @@ import java.util.UUID;
 public class Arancel {
 
     @Id
-    @Column(name = "IdArancel", length = 36)
+    @Column(name = "IdArancel", columnDefinition = "uuid")
     private String idArancel;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -34,7 +34,7 @@ public class Arancel {
     private Sistema sistema;
 
     @Column(nullable = false)
-    private Byte baja = 0;
+    private Boolean baja = false;
 
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaModificacion;

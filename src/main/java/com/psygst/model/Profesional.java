@@ -11,7 +11,7 @@ import java.util.UUID;
 public class Profesional {
 
     @Id
-    @Column(name = "IdProfesional", length = 36)
+    @Column(name = "IdProfesional", columnDefinition = "uuid")
     private String idProfesional;
 
     @Column(nullable = false, length = 100)
@@ -47,7 +47,7 @@ public class Profesional {
     private Sistema sistema;
 
     @Column(nullable = false)
-    private Byte baja = 0;
+    private Boolean baja = false;
 
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaModificacion;

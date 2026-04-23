@@ -9,6 +9,6 @@ import java.util.Optional;
 
 @Repository
 public interface FacturaRepository extends JpaRepository<Factura, String> {
-    List<Factura> findByPaciente_IdPacienteAndSistema_IdSistemaAndBaja(String idPaciente, String idSistema, Byte baja);
-    Optional<Factura> findByIdFacturaAndSistema_IdSistemaAndBaja(String idFactura, String idSistema, Byte baja);
+    List<Factura> findByPaciente_IdPacienteAndSistema_IdSistemaAndBaja(String idPaciente, String idSistema, Boolean baja);
+    Optional<Factura> findByIdFacturaAndSistema_IdSistemaAndBaja(String idFactura, String idSistema, Boolean baja);
 }

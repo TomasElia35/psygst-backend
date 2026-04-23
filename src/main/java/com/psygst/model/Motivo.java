@@ -10,14 +10,14 @@ import java.util.UUID;
 public class Motivo {
 
     @Id
-    @Column(name = "IdMotivo", length = 36)
+    @Column(name = "IdMotivo", columnDefinition = "uuid")
     private String idMotivo;
 
     @Column(nullable = false, length = 100)
-    private String descripcion;  // Alta, Abandono, Derivación, etc.
+    private String descripcion;  // Alta, Abandono, DerivaciÃ³n, etc.
 
     @Column(nullable = false)
-    private Byte baja = 0;
+    private Boolean baja = false;
 
     @PrePersist
     protected void onCreate() {

@@ -8,6 +8,6 @@ import java.util.List;
 
 @Repository
 public interface ObraSocialRepository extends JpaRepository<ObraSocial, String> {
-    List<ObraSocial> findByBaja(Byte baja);
+    List<ObraSocial> findByBaja(Boolean baja);
     java.util.Optional<ObraSocial> findByNombreIgnoreCase(String nombre);
 }

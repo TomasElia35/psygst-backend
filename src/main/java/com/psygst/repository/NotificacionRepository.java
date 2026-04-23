@@ -13,9 +13,9 @@ import java.util.Optional;
 @Repository
 public interface NotificacionRepository extends JpaRepository<Notificacion, String> {
 
-    Optional<Notificacion> findByIdNotificacionAndSistema_IdSistemaAndBaja(String idNotificacion, String idSistema, Byte baja);
+    Optional<Notificacion> findByIdNotificacionAndSistema_IdSistemaAndBaja(String idNotificacion, String idSistema, Boolean baja);
 
-    List<Notificacion> findByTurno_IdTurnoAndBaja(String idTurno, Byte baja);
+    List<Notificacion> findByTurno_IdTurnoAndBaja(String idTurno, Boolean baja);
 
     /**
      * Scheduler query: due notifications that are still pending and within retry limit
@@ -26,10 +26,10 @@ public interface NotificacionRepository extends JpaRepository<Notificacion, Stri
     List<Notificacion> findDueNotificaciones(@Param("now") LocalDateTime now);
 
     List<Notificacion> findByProfesional_IdProfesionalAndEstadoAndBaja(
-            String idProfesional, String estado, Byte baja);
+            String idProfesional, String estado, Boolean baja);
 
     List<Notificacion> findByProfesional_IdProfesionalAndBajaOrderByFechaCreacionDesc(
-            String idProfesional, Byte baja);
+            String idProfesional, Boolean baja);
 
     /** Anular pending reminders when turno is cancelled (RN-N03) */
     @Query("SELECT n FROM Notificacion n WHERE n.turno.idTurno = :idTurno " +

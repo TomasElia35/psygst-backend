@@ -36,7 +36,7 @@ public class PacienteService {
             pacientes = pacienteRepository.search(idSistema, q, pageable);
         } else {
             pacientes = pacienteRepository.findByProfesional_IdProfesionalAndSistema_IdSistemaAndBaja(
-                    idProfesional, idSistema, (byte) 0, pageable);
+                    idProfesional, idSistema, false, pageable);
         }
         return pacientes.map(this::toResponse);
     }
@@ -52,7 +52,7 @@ public class PacienteService {
         String idProfesional = SecurityContextUtil.getCurrentIdProfesional();
 
         // RN-P01: DNI unique per tenant
-        if (pacienteRepository.existsByDniAndSistema_IdSistemaAndBaja(request.dni(), idSistema, (byte) 0)) {
+        if (pacienteRepository.existsByDniAndSistema_IdSistemaAndBaja(request.dni(), idSistema, false)) {
             throw new ConflictException(
                     "Ya existe un paciente activo con DNI " + request.dni() + " en este consultorio");
         }
@@ -69,7 +69,7 @@ public class PacienteService {
                     .orElseThrow(() -> new BadRequestException("Obra social no encontrada"));
         } else {
             obraSocial = obraSocialRepository.findByNombreIgnoreCase("Particular")
-                    .orElseGet(() -> obraSocialRepository.save(ObraSocial.builder().nombre("Particular").baja((byte) 0).build()));
+                    .orElseGet(() -> obraSocialRepository.save(ObraSocial.builder().nombre("Particular").baja(false).build()));
         }
 
         Paciente paciente = Paciente.builder()
@@ -83,7 +83,7 @@ public class PacienteService {
                 .observaciones(request.observaciones())
                 .profesional(profesional)
                 .sistema(sistema)
-                .baja((byte) 0)
+                .baja(false)
                 .build();
         // idPaciente generated in @PrePersist
 
@@ -97,7 +97,7 @@ public class PacienteService {
 
         // RN-P01: if DNI changed, check uniqueness
         if (!paciente.getDni().equals(request.dni())) {
-            if (pacienteRepository.existsByDniAndSistema_IdSistemaAndBaja(request.dni(), idSistema, (byte) 0)) {
+            if (pacienteRepository.existsByDniAndSistema_IdSistemaAndBaja(request.dni(), idSistema, false)) {
                 throw new ConflictException("Ya existe un paciente activo con DNI " + request.dni());
             }
         }
@@ -108,7 +108,7 @@ public class PacienteService {
                     .orElseThrow(() -> new BadRequestException("Obra social no encontrada"));
         } else {
             obraSocial = obraSocialRepository.findByNombreIgnoreCase("Particular")
-                    .orElseGet(() -> obraSocialRepository.save(ObraSocial.builder().nombre("Particular").baja((byte) 0).build()));
+                    .orElseGet(() -> obraSocialRepository.save(ObraSocial.builder().nombre("Particular").baja(false).build()));
         }
 
         paciente.setNombre(request.nombre());
@@ -136,13 +136,13 @@ public class PacienteService {
         List<Turno> futurosTurnos = turnoRepository.findFutureConfirmedByPaciente(paciente.getIdPaciente());
         if (!futurosTurnos.isEmpty()) {
             throw new ConflictException("El paciente tiene " + futurosTurnos.size() +
-                    " turno(s) futuro(s) confirmado(s). Debés cancelarlos antes de dar de baja.");
+                    " turno(s) futuro(s) confirmado(s). DebÃ©s cancelarlos antes de dar de baja.");
         }
 
         Motivo motivo = motivoRepository.findById(idMotivo)
-                .orElseThrow(() -> new BadRequestException("Motivo de baja no válido"));
+                .orElseThrow(() -> new BadRequestException("Motivo de baja no vÃ¡lido"));
 
-        paciente.setBaja((byte) 1);
+        paciente.setBaja(true);
         paciente.setMotivo(motivo);
         paciente.setFechaBaja(LocalDateTime.now());
         pacienteRepository.save(paciente);
@@ -150,7 +150,7 @@ public class PacienteService {
 
     private Paciente findById(String id) {
         String idSistema = SecurityContextUtil.getCurrentIdSistema();
-        return pacienteRepository.findByIdPacienteAndSistema_IdSistemaAndBaja(id, idSistema, (byte) 0)
+        return pacienteRepository.findByIdPacienteAndSistema_IdSistemaAndBaja(id, idSistema, false)
                 .orElseThrow(() -> new EntityNotFoundException("Paciente no encontrado"));
     }
 

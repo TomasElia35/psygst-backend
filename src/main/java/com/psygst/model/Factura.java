@@ -11,7 +11,7 @@ import java.util.UUID;
 public class Factura {
 
     @Id
-    @Column(name = "IdFactura", length = 36)
+    @Column(name = "IdFactura", columnDefinition = "uuid")
     private String idFactura;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -34,7 +34,7 @@ public class Factura {
 
     @Builder.Default
     @Column(nullable = false)
-    private Byte baja = 0;
+    private Boolean baja = false;
 
     private LocalDateTime fechaCreacion;
 

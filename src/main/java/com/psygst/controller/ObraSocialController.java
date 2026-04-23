@@ -17,6 +17,6 @@ public class ObraSocialController {
 
     @GetMapping
     public ResponseEntity<List<ObraSocial>> listar() {
-        return ResponseEntity.ok(obraSocialRepository.findByBaja((byte) 0));
+        return ResponseEntity.ok(obraSocialRepository.findByBaja(false));
     }
 }

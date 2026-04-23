@@ -14,7 +14,7 @@ import java.util.UUID;
 public class Turno {
 
     @Id
-    @Column(name = "IdTurno", length = 36)
+    @Column(name = "IdTurno", columnDefinition = "uuid")
     private String idTurno;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -45,7 +45,7 @@ public class Turno {
     @Column(nullable = false, length = 20)
     private String estado = "CONFIRMADO";
 
-    /** RN-T06: precio congelado al momento de creación */
+    /** RN-T06: precio congelado al momento de creaciÃ³n */
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal precioFinal;
 
@@ -61,7 +61,7 @@ public class Turno {
     private Sistema sistema;
 
     @Column(nullable = false)
-    private Byte baja = 0;
+    private Boolean baja = false;
 
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaModificacion;

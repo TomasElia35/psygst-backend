@@ -15,7 +15,7 @@ public class ProfesionService {
     private final ProfesionRepository profesionRepository;
 
     public List<ProfesionResponse> obtenerTodas() {
-        return profesionRepository.findByBaja((byte) 0).stream()
+        return profesionRepository.findByBaja(false).stream()
                 .map(p -> new ProfesionResponse(p.getIdProfesion(), p.getNombre()))
                 .collect(Collectors.toList());
     }

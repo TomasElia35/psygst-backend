@@ -15,7 +15,7 @@ import java.util.UUID;
 public class Notificacion {
 
     @Id
-    @Column(name = "IdNotificacion", length = 36)
+    @Column(name = "IdNotificacion", columnDefinition = "uuid")
     private String idNotificacion;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -40,7 +40,7 @@ public class Notificacion {
 
     /**
      * Estado: PENDIENTE, ENVIADO, FALLIDO
-     * RN-N02: max 3 intentos → FALLIDO
+     * RN-N02: max 3 intentos â†’ FALLIDO
      */
     @Column(nullable = false, length = 20)
     private String estado = "PENDIENTE";
@@ -64,7 +64,7 @@ public class Notificacion {
     private Sistema sistema;
 
     @Column(nullable = false)
-    private Byte baja = 0;
+    private Boolean baja = false;
 
     private LocalDateTime fechaCreacion;
 

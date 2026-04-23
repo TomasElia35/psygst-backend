@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface MotivoRepository extends JpaRepository<Motivo, String> {
-    List<Motivo> findByBaja(Byte baja);
+    List<Motivo> findByBaja(Boolean baja);
 }

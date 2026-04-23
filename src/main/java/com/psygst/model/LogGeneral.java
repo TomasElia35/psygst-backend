@@ -40,7 +40,7 @@ public class LogGeneral {
     private Sistema sistema;
 
     @Column(nullable = false)
-    private Byte baja = 0;
+    private Boolean baja = false;
 
     @PrePersist
     protected void onCreate() {

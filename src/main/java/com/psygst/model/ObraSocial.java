@@ -10,7 +10,7 @@ import java.util.UUID;
 public class ObraSocial {
 
     @Id
-    @Column(name = "IdObraSocial", length = 36)
+    @Column(name = "IdObraSocial", columnDefinition = "uuid")
     private String idObraSocial;
 
     @Column(nullable = false, length = 100)
@@ -20,7 +20,7 @@ public class ObraSocial {
     private String contactoLiquidacion;
 
     @Column(nullable = false)
-    private Byte baja = 0;
+    private Boolean baja = false;
 
     @PrePersist
     protected void onCreate() {

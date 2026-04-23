@@ -29,25 +29,25 @@ public class PagoService {
                 .monto(turno.getPrecioFinal())
                 .profesional(turno.getProfesional())
                 .sistema(turno.getSistema())
-                .baja((byte) 0)
+                .baja(false)
                 .build();
         // idPago generated in @PrePersist
         pagoRepository.save(pago);
     }
 
-    /** RN-F04: called by TurnoService when canceled ≥ 48hs before */
+    /** RN-F04: called by TurnoService when canceled â‰¥ 48hs before */
     @Transactional
     public void anularPagoDeTurnoPorId(String idTurno) {
-        pagoRepository.findByTurno_IdTurnoAndBaja(idTurno, (byte) 0)
+        pagoRepository.findByTurno_IdTurnoAndBaja(idTurno, false)
                 .ifPresent(p -> {
-                    p.setBaja((byte) 1);
+                    p.setBaja(true);
                     pagoRepository.save(p);
                 });
     }
 
     @Transactional(readOnly = true)
     public PagoResponse obtenerPorTurno(String idTurno) {
-        Pago pago = pagoRepository.findByTurno_IdTurnoAndBaja(idTurno, (byte) 0)
+        Pago pago = pagoRepository.findByTurno_IdTurnoAndBaja(idTurno, false)
                 .orElseThrow(() -> new EntityNotFoundException("Pago no encontrado para el turno"));
         return toResponse(pago);
     }
@@ -69,7 +69,7 @@ public class PagoService {
     @Transactional
     public PagoResponse registrarPago(String idPago, RegistrarPagoRequest request) {
         String idSistema = SecurityContextUtil.getCurrentIdSistema();
-        Pago pago = pagoRepository.findByIdPagoAndSistema_IdSistemaAndBaja(idPago, idSistema, (byte) 0)
+        Pago pago = pagoRepository.findByIdPagoAndSistema_IdSistemaAndBaja(idPago, idSistema, false)
                 .orElseThrow(() -> new EntityNotFoundException("Pago no encontrado"));
 
         pago.setPagado(true);

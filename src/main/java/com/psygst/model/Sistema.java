@@ -11,7 +11,7 @@ import java.util.UUID;
 public class Sistema {
 
     @Id
-    @Column(name = "IdSistema", length = 36)
+    @Column(name = "IdSistema", columnDefinition = "uuid")
     private String idSistema;
 
     @Column(nullable = false, length = 100)
@@ -21,7 +21,7 @@ public class Sistema {
     private Boolean activo = true;
 
     @Column(nullable = false)
-    private Byte baja = 0;
+    private Boolean baja = false;
 
     private LocalDateTime fechaCreacion;
 

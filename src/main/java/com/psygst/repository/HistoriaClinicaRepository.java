@@ -10,10 +10,10 @@ import java.util.Optional;
 @Repository
 public interface HistoriaClinicaRepository extends JpaRepository<HistoriaClinica, String> {
 
-    /** RN-H01: owner check — always filter by idProfesional */
+    /** RN-H01: owner check â€” always filter by idProfesional */
     List<HistoriaClinica> findByPaciente_IdPacienteAndProfesional_IdProfesionalAndBajaOrderByFechaCreacionDesc(
-            String idPaciente, String idProfesional, Byte baja);
+            String idPaciente, String idProfesional, Boolean baja);
 
     Optional<HistoriaClinica> findByIdHistoriaClinicaAndProfesional_IdProfesionalAndBaja(
-            String idHistoriaClinica, String idProfesional, Byte baja);
+            String idHistoriaClinica, String idProfesional, Boolean baja);
 }

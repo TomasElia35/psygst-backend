@@ -36,10 +36,10 @@ public class FacturaService {
         String idProfesional = SecurityContextUtil.getCurrentIdProfesional();
 
         if (file.isEmpty()) {
-            throw new BadRequestException("El archivo está vacío");
+            throw new BadRequestException("El archivo estÃ¡ vacÃ­o");
         }
 
-        Paciente paciente = pacienteRepository.findByIdPacienteAndSistema_IdSistemaAndBaja(idPaciente, idSistema, (byte) 0)
+        Paciente paciente = pacienteRepository.findByIdPacienteAndSistema_IdSistemaAndBaja(idPaciente, idSistema, false)
                 .orElseThrow(() -> new EntityNotFoundException("Paciente no encontrado"));
 
         Profesional profesional = profesionalRepository.findById(idProfesional)
@@ -55,7 +55,7 @@ public class FacturaService {
                     .sistema(paciente.getSistema())
                     .nombreArchivo(fileNameToSave)
                     .datosArchivo(file.getBytes())
-                    .baja((byte) 0)
+                    .baja(false)
                     .build();
             // idFactura generated in @PrePersist
 
@@ -72,7 +72,7 @@ public class FacturaService {
     @Transactional(readOnly = true)
     public List<FacturaResponse> listarPorPaciente(String idPaciente) {
         String idSistema = SecurityContextUtil.getCurrentIdSistema();
-        return facturaRepository.findByPaciente_IdPacienteAndSistema_IdSistemaAndBaja(idPaciente, idSistema, (byte) 0)
+        return facturaRepository.findByPaciente_IdPacienteAndSistema_IdSistemaAndBaja(idPaciente, idSistema, false)
                 .stream()
                 .map(f -> new FacturaResponse(f.getIdFactura(), f.getNombreArchivo(),
                         f.getFechaCreacion().toString()))
@@ -82,7 +82,7 @@ public class FacturaService {
     @Transactional(readOnly = true)
     public Resource descargarFactura(String idFactura) {
         String idSistema = SecurityContextUtil.getCurrentIdSistema();
-        Factura factura = facturaRepository.findByIdFacturaAndSistema_IdSistemaAndBaja(idFactura, idSistema, (byte) 0)
+        Factura factura = facturaRepository.findByIdFacturaAndSistema_IdSistemaAndBaja(idFactura, idSistema, false)
                 .orElseThrow(() -> new EntityNotFoundException("Factura no encontrada"));
 
         if (factura.getDatosArchivo() != null) {
@@ -95,7 +95,7 @@ public class FacturaService {
     @Transactional(readOnly = true)
     public Factura obtenerPorId(String idFactura) {
         String idSistema = SecurityContextUtil.getCurrentIdSistema();
-        return facturaRepository.findByIdFacturaAndSistema_IdSistemaAndBaja(idFactura, idSistema, (byte) 0)
+        return facturaRepository.findByIdFacturaAndSistema_IdSistemaAndBaja(idFactura, idSistema, false)
                 .orElseThrow(() -> new EntityNotFoundException("Factura no encontrada"));
     }
 }

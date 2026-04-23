@@ -45,7 +45,7 @@ public class ReciboService {
         String idSistema     = SecurityContextUtil.getCurrentIdSistema();
         String idProfesional = SecurityContextUtil.getCurrentIdProfesional();
 
-        Pago pago = pagoRepository.findByIdPagoAndSistema_IdSistemaAndBaja(idPago, idSistema, (byte) 0)
+        Pago pago = pagoRepository.findByIdPagoAndSistema_IdSistemaAndBaja(idPago, idSistema, false)
                 .orElseThrow(() -> new EntityNotFoundException("Pago no encontrado"));
 
         // RN-F01: only if paid
@@ -75,7 +75,7 @@ public class ReciboService {
                 .fechaEmision(LocalDateTime.now())
                 .profesional(prof)
                 .sistema(sistema)
-                .baja((byte) 0)
+                .baja(false)
                 .build();
         // idRecibo generated in @PrePersist
 
@@ -86,7 +86,7 @@ public class ReciboService {
     @Transactional(readOnly = true)
     public byte[] descargar(String idRecibo) {
         String idSistema = SecurityContextUtil.getCurrentIdSistema();
-        Recibo recibo = reciboRepository.findByIdReciboAndSistema_IdSistemaAndBaja(idRecibo, idSistema, (byte) 0)
+        Recibo recibo = reciboRepository.findByIdReciboAndSistema_IdSistemaAndBaja(idRecibo, idSistema, false)
                 .orElseThrow(() -> new EntityNotFoundException("Recibo no encontrado"));
 
         try {
@@ -99,7 +99,7 @@ public class ReciboService {
     @Transactional(readOnly = true)
     public List<ReciboResponse> obtenerPorPaciente(String idPaciente) {
         return reciboRepository.findByPago_Turno_Paciente_IdPacienteAndBajaOrderByFechaEmisionDesc(
-                idPaciente, (byte) 0)
+                idPaciente, false)
                 .stream().map(this::toResponse).collect(Collectors.toList());
     }
 
@@ -126,7 +126,7 @@ public class ReciboService {
             DeviceRgb primaryColor = new DeviceRgb(37, 99, 235); // #2563EB blue
 
             // Header
-            Paragraph header = new Paragraph("PsyGst — Recibo de Pago")
+            Paragraph header = new Paragraph("PsyGst â€” Recibo de Pago")
                     .setFontColor(primaryColor)
                     .setBold()
                     .setFontSize(20)
@@ -149,9 +149,9 @@ public class ReciboService {
 
             // Receipt info
             Table receiptTable = new Table(UnitValue.createPercentArray(new float[] { 50, 50 })).useAllAvailableWidth();
-            receiptTable.addCell(createCell("N° Recibo:", true));
+            receiptTable.addCell(createCell("NÂ° Recibo:", true));
             receiptTable.addCell(createCell(nroRecibo, false));
-            receiptTable.addCell(createCell("Fecha Emisión:", true));
+            receiptTable.addCell(createCell("Fecha EmisiÃ³n:", true));
             receiptTable.addCell(createCell(LocalDateTime.now().toLocalDate().toString(), false));
             doc.add(receiptTable);
 
@@ -165,13 +165,13 @@ public class ReciboService {
                     createCell(turno.getPaciente().getNombre() + " " + turno.getPaciente().getApellido(), false));
             sessionTable.addCell(createCell("DNI:", true));
             sessionTable.addCell(createCell(turno.getPaciente().getDni(), false));
-            sessionTable.addCell(createCell("Fecha Sesión:", true));
+            sessionTable.addCell(createCell("Fecha SesiÃ³n:", true));
             sessionTable.addCell(createCell(turno.getFecha().toString(), false));
             sessionTable.addCell(createCell("Horario:", true));
             sessionTable.addCell(createCell(turno.getHoraComienzo() + " - " + turno.getHoraFin(), false));
             sessionTable.addCell(createCell("Modalidad:", true));
             sessionTable.addCell(createCell(turno.getModalidad(), false));
-            sessionTable.addCell(createCell("Método de pago:", true));
+            sessionTable.addCell(createCell("MÃ©todo de pago:", true));
             sessionTable.addCell(createCell(pago.getMetodoPago() != null ? pago.getMetodoPago() : "-", false));
             doc.add(sessionTable);
 
@@ -187,8 +187,8 @@ public class ReciboService {
             doc.add(new Paragraph("\n\n"));
 
             // Legal footer
-            Paragraph footer = new Paragraph("Comprobante no válido como factura. " +
-                    "Emitido bajo régimen de Monotributo.")
+            Paragraph footer = new Paragraph("Comprobante no vÃ¡lido como factura. " +
+                    "Emitido bajo rÃ©gimen de Monotributo.")
                     .setFontSize(8)
                     .setFontColor(ColorConstants.GRAY)
                     .setTextAlignment(TextAlignment.CENTER);
@@ -229,9 +229,9 @@ public class ReciboService {
 
     public void anular(String idRecibo) {
         String idSistema = SecurityContextUtil.getCurrentIdSistema();
-        Recibo recibo = reciboRepository.findByIdReciboAndSistema_IdSistemaAndBaja(idRecibo, idSistema, (byte) 0)
+        Recibo recibo = reciboRepository.findByIdReciboAndSistema_IdSistemaAndBaja(idRecibo, idSistema, false)
                 .orElseThrow(() -> new EntityNotFoundException("Recibo no encontrado"));
-        recibo.setBaja((byte) 1); // RN-F04: anulado, number not reused
+        recibo.setBaja(true); // RN-F04: anulado, number not reused
         reciboRepository.save(recibo);
     }
 }

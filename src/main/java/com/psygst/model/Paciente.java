@@ -12,7 +12,7 @@ import java.util.UUID;
 public class Paciente {
 
     @Id
-    @Column(name = "IdPaciente", length = 36)
+    @Column(name = "IdPaciente", columnDefinition = "uuid")
     private String idPaciente;
 
     @Column(nullable = false, length = 100)
@@ -48,9 +48,9 @@ public class Paciente {
     @JoinColumn(name = "IdSistema")
     private Sistema sistema;
 
-    // Baja lógica
+    // Baja lÃ³gica
     @Column(nullable = false)
-    private Byte baja = 0;
+    private Boolean baja = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "IdMotivo")
