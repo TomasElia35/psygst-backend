@@ -21,7 +21,7 @@ public interface NotificacionRepository extends JpaRepository<Notificacion, Stri
      * Scheduler query: due notifications that are still pending and within retry limit
      */
     @Query("SELECT n FROM Notificacion n WHERE n.estado = 'PENDIENTE' " +
-            "AND n.baja = 0 AND n.intentos < 3 " +
+            "AND n.baja = false AND n.intentos < 3 " +
             "AND n.fechaProgramada <= :now")
     List<Notificacion> findDueNotificaciones(@Param("now") LocalDateTime now);
 
@@ -33,6 +33,6 @@ public interface NotificacionRepository extends JpaRepository<Notificacion, Stri
 
     /** Anular pending reminders when turno is cancelled (RN-N03) */
     @Query("SELECT n FROM Notificacion n WHERE n.turno.idTurno = :idTurno " +
-            "AND n.tipo = 'RECORDATORIO_24HS' AND n.estado = 'PENDIENTE' AND n.baja = 0")
+            "AND n.tipo = 'RECORDATORIO_24HS' AND n.estado = 'PENDIENTE' AND n.baja = false")
     List<Notificacion> findPendingRemindersByTurno(@Param("idTurno") String idTurno);
 }

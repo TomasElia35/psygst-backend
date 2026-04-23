@@ -21,7 +21,7 @@ public interface PacienteRepository extends JpaRepository<Paciente, String> {
     Page<Paciente> findByProfesional_IdProfesionalAndSistema_IdSistemaAndBaja(
             String idProfesional, String idSistema, Boolean baja, Pageable pageable);
 
-    @Query("SELECT p FROM Paciente p WHERE p.sistema.idSistema = :idSistema AND p.baja = 0 " +
+    @Query("SELECT p FROM Paciente p WHERE p.sistema.idSistema = :idSistema AND p.baja = false " +
             "AND (LOWER(p.nombre) LIKE LOWER(CONCAT('%', :q, '%')) OR LOWER(p.apellido) LIKE LOWER(CONCAT('%', :q, '%')) OR p.dni LIKE CONCAT('%', :q, '%'))")
     Page<Paciente> search(@Param("idSistema") String idSistema, @Param("q") String query, Pageable pageable);
 }

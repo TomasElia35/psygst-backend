@@ -17,7 +17,7 @@ public interface TurnoRepository extends JpaRepository<Turno, String> {
             String idProfesional, LocalDate fecha, Boolean baja);
 
     @Query("SELECT t FROM Turno t WHERE t.profesional.idProfesional = :idProfesional " +
-            "AND t.baja = 0 AND t.fecha >= :fechaInicio AND t.fecha <= :fechaFin")
+            "AND t.baja = false AND t.fecha >= :fechaInicio AND t.fecha <= :fechaFin")
     List<Turno> findByProfesionalAndWeek(@Param("idProfesional") String idProfesional,
             @Param("fechaInicio") LocalDate fechaInicio,
             @Param("fechaFin") LocalDate fechaFin);
@@ -31,7 +31,7 @@ public interface TurnoRepository extends JpaRepository<Turno, String> {
     @Query("SELECT COUNT(t) > 0 FROM Turno t " +
             "WHERE t.profesional.idProfesional = :idProfesional " +
             "AND t.fecha = :fecha " +
-            "AND t.baja = 0 " +
+            "AND t.baja = false " +
             "AND t.estado IN ('CONFIRMADO', 'REALIZADO') " +
             "AND t.horaComienzo < :horaFin " +
             "AND t.horaFin > :horaComienzo " +
@@ -44,7 +44,7 @@ public interface TurnoRepository extends JpaRepository<Turno, String> {
 
     /** RN-P02: find future confirmed turnos for a patient */
     @Query("SELECT t FROM Turno t WHERE t.paciente.idPaciente = :idPaciente " +
-            "AND t.estado = 'CONFIRMADO' AND t.fecha > CURRENT_DATE AND t.baja = 0")
+            "AND t.estado = 'CONFIRMADO' AND t.fecha > CURRENT_DATE AND t.baja = false")
     List<Turno> findFutureConfirmedByPaciente(@Param("idPaciente") String idPaciente);
 
     List<Turno> findByPaciente_IdPacienteAndBajaOrderByFechaDesc(String idPaciente, Boolean baja);

@@ -18,15 +18,15 @@ public interface PagoRepository extends JpaRepository<Pago, String> {
         Optional<Pago> findByIdPagoAndSistema_IdSistemaAndBaja(String idPago, String idSistema, Boolean baja);
 
         @Query("SELECT p FROM Pago p WHERE p.profesional.idProfesional = :idProfesional " +
-                        "AND p.baja = 0 AND p.pagado = false")
+                        "AND p.baja = false AND p.pagado = false")
         List<Pago> findPendientesByProfesional(@Param("idProfesional") String idProfesional);
 
         @Query("SELECT p FROM Pago p WHERE p.profesional.idProfesional = :idProfesional " +
-                        "AND p.baja = 0 AND p.pagado = true ORDER BY p.fechaPago DESC")
+                        "AND p.baja = false AND p.pagado = true ORDER BY p.fechaPago DESC")
         List<Pago> findPagadosByProfesional(@Param("idProfesional") String idProfesional);
 
         @Query("SELECT p FROM Pago p WHERE p.profesional.idProfesional = :idProfesional " +
-                        "AND p.baja = 0 AND p.turno.fecha >= :inicio AND p.turno.fecha <= :fin")
+                        "AND p.baja = false AND p.turno.fecha >= :inicio AND p.turno.fecha <= :fin")
         List<Pago> findByProfesionalAndPeriod(@Param("idProfesional") String idProfesional,
                         @Param("inicio") LocalDate inicio,
                         @Param("fin") LocalDate fin);

@@ -17,7 +17,7 @@ public interface ReciboRepository extends JpaRepository<Recibo, String> {
     /** RN-F02: max correlative number for prof in a given year */
     @Query("SELECT MAX(r.nroRecibo) FROM Recibo r " +
             "WHERE r.profesional.idProfesional = :idProfesional " +
-            "AND YEAR(r.fechaEmision) = :year AND r.baja = 0")
+            "AND YEAR(r.fechaEmision) = :year AND r.baja = false")
     Optional<String> findLastNroReciboByProfesionalAndYear(
             @Param("idProfesional") String idProfesional, @Param("year") int year);
 
