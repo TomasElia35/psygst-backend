@@ -35,7 +35,7 @@ public interface TurnoRepository extends JpaRepository<Turno, String> {
             "AND t.estado IN ('CONFIRMADO', 'REALIZADO') " +
             "AND t.horaComienzo < :horaFin " +
             "AND t.horaFin > :horaComienzo " +
-            "AND (:excludeId IS NULL OR t.idTurno <> :excludeId)")
+            "AND (CAST(:excludeId AS string) IS NULL OR t.idTurno <> :excludeId)")
     boolean existsOverlap(@Param("idProfesional") String idProfesional,
             @Param("fecha") LocalDate fecha,
             @Param("horaComienzo") LocalTime horaComienzo,
