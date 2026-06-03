@@ -56,6 +56,9 @@ public class Turno {
     @Column(length = 500)
     private String observaciones;
 
+    @OneToOne(mappedBy = "turno", fetch = FetchType.LAZY)
+    private Pago pago;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "IdSistema")
     private Sistema sistema;

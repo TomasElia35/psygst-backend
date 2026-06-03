@@ -35,6 +35,12 @@ public class Pago {
 
     private LocalDateTime fechaPago;
 
+    @Column(length = 10)
+    private String moneda = "ARS";
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal cotizacion;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "IdProfesional")
     private Profesional profesional;

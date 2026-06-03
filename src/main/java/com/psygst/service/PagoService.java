@@ -22,13 +22,15 @@ public class PagoService {
 
     /** RN-F03: called automatically by TurnoService on turno creation */
     @Transactional
-    public void crearPagoParaTurno(Turno turno) {
+    public void crearPagoParaTurno(Turno turno, String moneda, java.math.BigDecimal cotizacion) {
         Pago pago = Pago.builder()
                 .turno(turno)
                 .pagado(false)
                 .monto(turno.getPrecioFinal())
                 .profesional(turno.getProfesional())
                 .sistema(turno.getSistema())
+                .moneda(moneda != null && !moneda.isBlank() ? moneda : "ARS")
+                .cotizacion(cotizacion)
                 .baja(false)
                 .build();
         // idPago generated in @PrePersist
@@ -60,10 +62,13 @@ public class PagoService {
     }
 
     @Transactional(readOnly = true)
-    public List<PagoResponse> obtenerPagados() {
+    public org.springframework.data.domain.Page<PagoResponse> obtenerPagados(String busqueda, org.springframework.data.domain.Pageable pageable) {
         String idProfesional = SecurityContextUtil.getCurrentIdProfesional();
-        return pagoRepository.findPagadosByProfesional(idProfesional)
-                .stream().map(this::toResponse).collect(Collectors.toList());
+        if (busqueda == null || busqueda.trim().isEmpty()) {
+            return pagoRepository.findPagadosWithoutSearch(idProfesional, pageable).map(this::toResponse);
+        } else {
+            return pagoRepository.findPagadosWithSearch(idProfesional, busqueda, pageable).map(this::toResponse);
+        }
     }
 
     @Transactional
@@ -76,6 +81,13 @@ public class PagoService {
         pago.setMetodoPago(request.metodoPago());
         pago.setComprobanteImg(request.comprobanteImg());
         pago.setFechaPago(LocalDateTime.now());
+        
+        if (request.moneda() != null) {
+            pago.setMoneda(request.moneda());
+        }
+        if (request.cotizacion() != null) {
+            pago.setCotizacion(request.cotizacion());
+        }
 
         return toResponse(pagoRepository.save(pago));
     }
@@ -99,6 +111,8 @@ public class PagoService {
                 p.getPagado(),
                 p.getMetodoPago(),
                 p.getComprobanteImg(),
-                p.getFechaPago());
+                p.getFechaPago(),
+                p.getMoneda(),
+                p.getCotizacion());
     }
 }

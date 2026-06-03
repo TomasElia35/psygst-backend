@@ -12,5 +12,7 @@ public record TurnoRequest(
         @NotNull(message = "La hora de fin es obligatoria") LocalTime horaFin,
         @NotBlank(message = "La modalidad es obligatoria") String modalidad,
         @NotNull(message = "El precio es obligatorio") @DecimalMin("0.01") BigDecimal precioFinal,
+        String moneda,
+        BigDecimal cotizacion,
         String observaciones) {
 }

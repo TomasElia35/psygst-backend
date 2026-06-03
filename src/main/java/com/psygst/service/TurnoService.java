@@ -94,7 +94,7 @@ public class TurnoService {
         turno = turnoRepository.save(turno);
 
         // RN-F03: auto-create pending payment
-        pagoService.crearPagoParaTurno(turno);
+        pagoService.crearPagoParaTurno(turno, request.moneda(), request.cotizacion());
 
         // RN-N01: schedule 24h reminder
         notificacionService.programarRecordatorio(turno);
@@ -189,6 +189,8 @@ public class TurnoService {
                 t.getModalidad(),
                 t.getEstado(),
                 t.getPrecioFinal(),
+                t.getPago() != null ? t.getPago().getMoneda() : "ARS",
+                t.getPago() != null ? t.getPago().getCotizacion() : null,
                 t.getObservaciones());
     }
 }

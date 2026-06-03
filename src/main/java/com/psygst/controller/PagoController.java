@@ -29,8 +29,10 @@ public class PagoController {
     }
 
     @GetMapping("/pagados")
-    public ResponseEntity<List<PagoResponse>> obtenerPagados() {
-        return ResponseEntity.ok(pagoService.obtenerPagados());
+    public ResponseEntity<org.springframework.data.domain.Page<PagoResponse>> obtenerPagados(
+            @RequestParam(required = false) String busqueda,
+            org.springframework.data.domain.Pageable pageable) {
+        return ResponseEntity.ok(pagoService.obtenerPagados(busqueda, pageable));
     }
 
     @PatchMapping("/{uuid}/registrar")

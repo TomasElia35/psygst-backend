@@ -13,5 +13,7 @@ public record PagoResponse(
         Boolean pagado,
         String metodoPago,
         String comprobanteImg,
-        LocalDateTime fechaPago) {
+        LocalDateTime fechaPago,
+        String moneda,
+        BigDecimal cotizacion) {
 }

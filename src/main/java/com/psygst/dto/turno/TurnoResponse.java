@@ -14,5 +14,7 @@ public record TurnoResponse(
         String modalidad,
         String estado,
         BigDecimal precioFinal,
+        String moneda,
+        BigDecimal cotizacion,
         String observaciones) {
 }

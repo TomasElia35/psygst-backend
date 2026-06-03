@@ -1,0 +1,20 @@
+# Configuración específica para el entorno de Desarrollo (Local)
+# Se activa corriendo la aplicación con el perfil 'dev' (ej. -Dspring.profiles.active=dev)
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5433/PsyGst?stringtype=unspecified
+    username: postgres
+    password: root2024
+  
+  jpa:
+    show-sql: true # Muestra las consultas SQL en consola para facilitar el debug local
+
+# Recomendado: desactivar envíos reales en desarrollo para evitar notificaciones no deseadas a pacientes reales
+whatsapp:
+  provider: none
+
+# Logs más detallados en local
+logging:
+  level:
+    com.psygst: DEBUG

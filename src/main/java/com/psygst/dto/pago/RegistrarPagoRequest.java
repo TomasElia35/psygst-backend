@@ -1,4 +1,6 @@
 package com.psygst.dto.pago;
 
-public record RegistrarPagoRequest(String metodoPago, String comprobanteImg) {
+import java.math.BigDecimal;
+
+public record RegistrarPagoRequest(String metodoPago, String comprobanteImg, String moneda, BigDecimal cotizacion) {
 }
